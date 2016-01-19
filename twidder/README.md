@@ -1,2 +1,0 @@
-# twidder
-Simple social network
