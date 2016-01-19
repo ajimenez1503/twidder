@@ -53,7 +53,22 @@
             </div>
     </script>
     <script id="profileview" type=”text/view”>
-            <p>profile</p>
-            <button onClick="signout()" type="button">Log out</button>
+			<div id="home">
+			</div>
+			<div id="browse">
+			</div>
+			<div id="account">
+				<div class="formChangePassword">
+					<p>Change password</p>
+					<form>
+                        <label>Old password</label>
+                        <input id="formChangePasswordOld" type="password" pattern=".{4,4}" name="password" required></br>
+						<label>New password</label>
+                        <input id="formChangePasswordNew" type="password" pattern=".{4,4}" name="password" required></br>
+                        <input  type="submit" onClick="changePassword()" value="Login">
+                    </form>
+				</div>
+				<button id="buttomSignOut" onClick="signout()" type="button">Log out</button>
+			</div>
     </script>
 </html>

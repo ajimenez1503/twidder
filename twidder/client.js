@@ -31,7 +31,6 @@ function validateEmail(email)  {
 function login(){
 	var email=document.getElementById("loginEmail").value;
 	var password=document.getElementById("loginPassword").value;
-	console.log("data"+email+" "+password);
     if(email.length>0 && password.length==sizePasword && validateEmail(email)){
         var output=serverstub.signIn(email, password);
         window.alert(output.message+"   "+output.data);
@@ -91,4 +90,15 @@ function signout(){
         localStorage.removeItem("token");
     }
     location.reload();
+}
+
+function changePassword(){
+	var passwordOld=document.getElementById("formChangePasswordOld").value;
+	var passwordNew=document.getElementById("formChangePasswordNew").value;
+    if(passwordNew.length==sizePasword){
+        var output=serverstub.changePassword(localStorage.getItem("token"), passwordOld, passwordNew){
+        window.alert(output.message);
+    }else{
+        window.alert("error input");
+    }
 }

@@ -76,3 +76,54 @@ body  {
 	width:173px;
 	margin-bottom: 3px;
 }
+
+/*profile*/
+#home{
+	width:600px;
+    height: 400px;
+	margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+	background-color: rgb(255, 255, 255);
+	display:none;
+}
+#browse{
+	width:600px;
+    height: 400px;
+	margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+	background-color: rgb(255, 255, 255);
+	display:none;
+}
+#account{
+	width:600px;
+    height: 400px;
+	margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+	background-color: rgb(255, 255, 255);
+	display:block;
+}
+
+/*account*/
+.formChangePassword{
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 30px;
+  padding-top: 40px;
+  width: 199px;
+  padding-left: 10px;
+  margin-top: 101px;
+}
+#buttomSignOut{
+  float: right;
+  margin-right: 18px;
+  margin-top: 65px;
+}
+.formChangePassword p{
+	text-align: center;
+	font-size: larger;
+	font-weight: bolder;
+}
+
