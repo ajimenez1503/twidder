@@ -1,0 +1,78 @@
+/*Copyright ©. All rights reserved. Designed by Antonio Jimenez Martienz and Cedric Lallemand */
+
+/*welcome.html*/
+body  {
+	font-family: "Times New Roman", Georgia, Serif;
+	font-size: 17px;
+	background-color: rgb(123, 123, 255);
+}
+.container{
+    width:600px;
+    height: 400px;
+	margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+}
+.logo{
+    width:340px;
+    height: 400px;
+    border: 1px solid black;
+	float: left;
+}
+#imgLogo{
+    width:340px;
+    height: 400px;
+}
+
+.log{
+    width:250px;
+    height: 400px;
+	float: right;
+}
+.login{
+    width:250px;
+    height: 80px;
+	background-color: rgb(255, 255, 255);
+	margin-bottom: 10px;
+	padding-top: 10px;
+	text-align: right;
+	border: 1px solid black;
+}
+.login label{
+	float: left;
+}
+
+.login form{
+	margin-right: 2px;
+}
+.login input {
+	margin-bottom: 3px;
+}
+.singup{
+    width:250px;
+    height: 290px;
+	background-color: rgb(255, 255, 255);
+	margin-bottom: 10px;
+	padding-top: 10px;
+	text-align: right;
+	font-size: 14px;
+	border: 1px solid black;
+}
+.singup p{
+	text-align: center;
+	font-size: larger;
+	font-weight: bolder;
+}
+.singup form{
+	margin-right: 2px;
+}
+.singup input {
+	margin-bottom: 3px;
+}
+.singup label{
+	float: left;
+}
+.singup select{
+	width:173px;
+	margin-bottom: 3px;
+}
