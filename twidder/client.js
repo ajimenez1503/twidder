@@ -5,11 +5,20 @@ displayView = function(){
 };
 
 window.onload = function(){
+    if(localStorage.getItem("token") === null){
+        document.getElementById("viewBase").innerHTML = document.getElementById("welcomeview").innerHTML;
+    }else{
+        document.getElementById("viewBase").innerHTML = document.getElementById("profileview").innerHTML;
+    }
     //code that is executed as the page is loaded.
     //You shall put your own custom code here.
     //window.alert("Hello TDDD97!");
+    //localStorage.removeItem("token");
 
 };
+
+
+
 function validateEmail(email)  {
     var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if(email.match(mailformat))  {
@@ -25,8 +34,8 @@ function login(){
 	console.log("data"+email+" "+password);
     if(email.length>0 && password.length==sizePasword && validateEmail(email)){
         var output=serverstub.signIn(email, password);
-        window.alert(output.message);
-        var token=output.data;
+        window.alert(output.message+"   "+output.data);
+        localStorage.setItem("token", output.data);
     }else{
         window.alert("error input");
     }
@@ -73,4 +82,13 @@ function signup(){
     }else{
         window.alert("error input password");
     }
+}
+
+function signout(){
+    if(localStorage.getItem("token") != null){
+        var output=serverstub.signOut(localStorage.getItem("token"));
+        window.alert(output.message);
+        localStorage.removeItem("token");
+    }
+    location.reload();
 }
