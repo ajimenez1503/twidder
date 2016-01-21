@@ -12,9 +12,6 @@ window.onload = function(){
     }
     //code that is executed as the page is loaded.
     //You shall put your own custom code here.
-    //window.alert("Hello TDDD97!");
-    //localStorage.removeItem("token");
-
 };
 
 
@@ -96,9 +93,162 @@ function changePassword(){
 	var passwordOld=document.getElementById("formChangePasswordOld").value;
 	var passwordNew=document.getElementById("formChangePasswordNew").value;
     if(passwordNew.length==sizePasword){
-        var output=serverstub.changePassword(localStorage.getItem("token"), passwordOld, passwordNew){
+        var output=serverstub.changePassword(localStorage.getItem("token"), passwordOld, passwordNew);
         window.alert(output.message);
     }else{
         window.alert("error input");
     }
+}
+
+
+function dataProfile(){
+	/*var output=serverstub.getUserDataByToken(localStorage.getItem("token"));
+	if(output.success){*/
+	    document.getElementById("profileFirstName").innerHTML="hola";/*output.data.firstname;*/
+		document.getElementById("profileFamilyName").innerHTML="hola";/*output.data.familyname;*/
+		document.getElementById("profileGender").innerHTML="hola";/*output.data.gender;*/
+		document.getElementById("profileCity").innerHTML="hola";/*output.data.city;*/
+		document.getElementById("profileCountry").innerHTML="hola";/*output.data.country*/
+        document.getElementById("profileEmail").innerHTML="hola";/*output.data.email*/
+	/*}else{
+		window.alert(output.message);
+	}*/
+}
+
+function reloadpage(){
+    location.reload();
+    //dataProfile();
+    //getMessage()
+}
+
+function getMessage(){
+    var output;
+    /*output=serverstub.getUserMessagesByToken(localStorage.getItem("token"));
+	if(output.success){*/
+        for	(index = 0; index < output.data.length; index++) {
+            var node = document.createElement("P");
+            var textnode = document.createTextNode(output.data[index].writer+" : "+output.data[index].content);
+            node.appendChild(textnode);
+            document.getElementById("mymessageFrame").appendChild(node);
+        }
+    /*}else{
+        window.alert(output.message);
+    }*/
+}
+function sendMessage(message,email){
+    var output=serverstub.postMessage(localStorage.getItem("token"),message,email);
+	if(!output.success){
+        window.alert(output.message);
+    }
+}
+function sendMessagetoMe(){
+    var message=document.getElementById("writeMessage").value;
+    if(message.length>0 && message.length<200){
+        var profile=serverstub.getUserDataByToken(localStorage.getItem("token"));
+    	if(profile.success){
+            sendMessage(message,profile.data.email);
+        }else{
+            window.alert(profile.message);
+        }
+    }else{
+        window.alert("message empty");
+    }
+}
+
+function sendMessagetoOther(){
+    var message=document.getElementById("writeMessage").value;
+    var user=document.getElementById("searchProfile").value;
+    if(message.length>0 && message.length<200 && user.length>0 && user.length<200 ){
+        sendMessage(message,user);
+    }else{
+        window.alert("message empty");
+    }
+}
+
+function dataProfileOther(email){
+	/*var output=serverstub.getUserDataByToken(localStorage.getItem("token"),email);
+	if(output.success){*/
+	    document.getElementById("profileFirstName").innerHTML="hola";/*output.data.firstname;*/
+		document.getElementById("profileFamilyName").innerHTML="hola";/*output.data.familyname;*/
+		document.getElementById("profileGender").innerHTML="hola";/*output.data.gender;*/
+		document.getElementById("profileCity").innerHTML="hola";/*output.data.city;*/
+		document.getElementById("profileCountry").innerHTML="hola";/*output.data.country*/
+        document.getElementById("profileEmail").innerHTML="hola";/*output.data.email*/
+	/*}else{
+		window.alert(output.message);
+	}*/
+}
+
+function getMessageOther(email){
+    var output;
+    /*output=serverstub.getUserMessagesByToken(localStorage.getItem("token"),email);
+	if(output.success){*/
+        for	(index = 0; index < output.data.length; index++) {
+            var node = document.createElement("P");
+            var textnode = document.createTextNode(output.data[index].writer+" : "+output.data[index].content);
+            node.appendChild(textnode);
+            document.getElementById("mymessageFrame").appendChild(node);
+        }
+    /*}else{
+        window.alert(output.message);
+    }*/
+}
+
+function searchProfile(){
+    var email=document.getElementById("searchProfile").value;
+    if(email.length>0 && email.length<200){
+        var output=serverstub.getUserMessagesByToken(localStorage.getItem("token"),email);
+    	if(output.success){
+            dataProfileOther(email);
+            getMessageOther(email);
+            //active button of sendMessage
+            document.getElementById("SendMessage").disabled = true;
+        }else{
+            window.alert(output.message);
+        }
+    }else{
+        window.alert("email empty");
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function chanageHome(){
+    //alert(document.getElementById("home").style.display);
+    document.getElementById("home").style.display="block";
+    document.getElementById("browse").style.display="none";
+    document.getElementById("account").style.display="none";
+    dataProfile();
+    //getMessage();
+}
+
+function chanageBrowse(){
+    document.getElementById("home").style.display="none";
+    document.getElementById("browse").style.display="block";
+    document.getElementById("account").style.display="none";
+}
+
+function chanageAccount(){
+    document.getElementById("home").style.display="none";
+    document.getElementById("browse").style.display="none";
+    document.getElementById("account").style.display="block";
 }

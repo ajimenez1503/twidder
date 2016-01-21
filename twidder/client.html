@@ -53,9 +53,64 @@
             </div>
     </script>
     <script id="profileview" type=”text/view”>
+            <div class="nav-container">
+                <ul>
+                    <li onclick="chanageHome()"><a href="">Home</a></li>
+                    <li onclick="chanageBrowse()"><a href="">Browse</a></li>
+                    <li onclick="chanageAccount()"><a href="">Account</a></li>
+                </ul>
+            </div>
 			<div id="home">
+                <div>
+    				<div id="dataProfile">
+                        <div id="dataProfileFrame">
+        					<p>Info user</p>
+                                <label>First name:   </label><label id="profileFirstName"></label></br>
+                             	<label>Family name:   </label><label id="profileFamilyName"></label></br>
+                                <label>Gender:   </label><label id="profileGender"></label></br>
+            					<label>City:   </label><label id="profileCity"></label></br>
+                                <label>Country:   </label><label id="profileCountry"></label></br>
+                                <label>Email:   </label><label id="profileEmail"></label></br>
+                        </div>
+                    </div>
+                    <div id="mymessage">
+                        <div id="mymessageFrame">
+        					<p id="mymessageP">Messages</p>
+                            <input id="writeMessage" type="text" maxlength="200" name="writeMessage"></br>
+                            <button id="SendMessage" onClick="sendMessagetoMe()" type="button">Send</button>
+                        </div>
+
+                    </div>
+                </div>
+    			<button onClick="reloadpage()" type="button">Reload</button>
+                <button id="buttomSignOut" onClick="signout()" type="button">Log out</button>
 			</div>
 			<div id="browse">
+                <input id="searchProfile" type="text" maxlength="200" name="searchProfile">
+                <button id="ButtonSearchProfile" onClick="searchProfile()" type="button">Send</button>
+                <div>
+                    <div id="dataProfile">
+                        <div id="dataProfileFrame">
+                            <p>Info user</p>
+                                <label>First name:   </label><label id="profileFirstName"></label></br>
+                                <label>Family name:   </label><label id="profileFamilyName"></label></br>
+                                <label>Gender:   </label><label id="profileGender"></label></br>
+                                <label>City:   </label><label id="profileCity"></label></br>
+                                <label>Country:   </label><label id="profileCountry"></label></br>
+                                <label>Email:   </label><label id="profileEmail"></label></br>
+                        </div>
+                    </div>
+                    <div id="mymessage">
+                        <div id="mymessageFrame">
+                            <p id="mymessageP">Messages</p>
+                            <input id="writeMessage" type="text" maxlength="200" name="writeMessage"></br>
+                            <button id="SendMessage" onClick="sendMessagetoOther()" type="button" disabled="disabled">Send</button>
+                        </div>
+
+                    </div>
+                </div>
+                <button onClick="reloadpage()" type="button">Reload</button>
+                <button id="buttomSignOut" onClick="signout()" type="button">Log out</button>
 			</div>
 			<div id="account">
 				<div class="formChangePassword">
