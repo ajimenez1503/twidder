@@ -30,8 +30,12 @@ function login(){
 	var password=document.getElementById("loginPassword").value;
     if(email.length>0 && password.length==sizePasword && validateEmail(email)){
         var output=serverstub.signIn(email, password);
-        window.alert(output.message+"   "+output.data);
-        localStorage.setItem("token", output.data);
+		if(output.success){
+		    window.alert(output.message+"   "+output.data);
+		    localStorage.setItem("token", output.data);
+		}else{
+			window.alert(output.message);
+		}
     }else{
         window.alert("error input");
     }
@@ -102,42 +106,48 @@ function changePassword(){
 
 
 function dataProfile(){
-	/*var output=serverstub.getUserDataByToken(localStorage.getItem("token"));
-	if(output.success){*/
-	    document.getElementById("profileFirstName").innerHTML="hola";/*output.data.firstname;*/
-		document.getElementById("profileFamilyName").innerHTML="hola";/*output.data.familyname;*/
-		document.getElementById("profileGender").innerHTML="hola";/*output.data.gender;*/
-		document.getElementById("profileCity").innerHTML="hola";/*output.data.city;*/
-		document.getElementById("profileCountry").innerHTML="hola";/*output.data.country*/
-        document.getElementById("profileEmail").innerHTML="hola";/*output.data.email*/
-	/*}else{
+	var output=serverstub.getUserDataByToken(localStorage.getItem("token"));
+	if(output.success){
+	    document.getElementById("profileFirstName").innerHTML=output.data.firstname;
+		document.getElementById("profileFamilyName").innerHTML=output.data.familyname;
+		document.getElementById("profileGender").innerHTML=output.data.gender;
+		document.getElementById("profileCity").innerHTML=output.data.city;;
+		document.getElementById("profileCountry").innerHTML=output.data.country;
+        document.getElementById("profileEmail").innerHTML=output.data.email;
+	}else{
 		window.alert(output.message);
-	}*/
+	}
 }
 
 function reloadpage(){
-    location.reload();
-    //dataProfile();
-    //getMessage()
+    dataProfile();
+	var father=document.getElementById("listMessage");
+    getMessage(father);
 }
 
-function getMessage(){
-    var output;
-    /*output=serverstub.getUserMessagesByToken(localStorage.getItem("token"));
-	if(output.success){*/
-        for	(index = 0; index < output.data.length; index++) {
-            var node = document.createElement("P");
-            var textnode = document.createTextNode(output.data[index].writer+" : "+output.data[index].content);
-            node.appendChild(textnode);
-            document.getElementById("mymessageFrame").appendChild(node);
-        }
-    /*}else{
-        window.alert(output.message);
-    }*/
+function deleteAllChildElement(node){
+		while (node.firstChild) {
+    		node.removeChild(node.firstChild);
+		}
 }
-function sendMessage(message,email){
+
+function getMessage(father){
+    var output;
+    output=serverstub.getUserMessagesByToken(localStorage.getItem("token"));
+	if(output.success){
+		
+        showMessages(output.data,father);
+    }else{
+        window.alert(output.message);
+    }
+}
+function sendMessage(message,email,father){
     var output=serverstub.postMessage(localStorage.getItem("token"),message,email);
-	if(!output.success){
+	if(output.success){
+		document.getElementById("writeMessageBrowse").value="";
+		document.getElementById("writeMessage").value="";//TODO arregarlo solo uno
+		getMessage(father);
+	}else{
         window.alert(output.message);
     }
 }
@@ -146,7 +156,8 @@ function sendMessagetoMe(){
     if(message.length>0 && message.length<200){
         var profile=serverstub.getUserDataByToken(localStorage.getItem("token"));
     	if(profile.success){
-            sendMessage(message,profile.data.email);
+			var father=document.getElementById("listMessage");
+            sendMessage(message,profile.data.email,father);
         }else{
             window.alert(profile.message);
         }
@@ -156,58 +167,69 @@ function sendMessagetoMe(){
 }
 
 function sendMessagetoOther(){
-    var message=document.getElementById("writeMessage").value;
+    var message=document.getElementById("writeMessageBrowse").value;
     var user=document.getElementById("searchProfile").value;
     if(message.length>0 && message.length<200 && user.length>0 && user.length<200 ){
-        sendMessage(message,user);
+		var father=document.getElementById("listMessageBrowse");
+        sendMessage(message,user,father);
     }else{
         window.alert("message empty");
     }
 }
 
 function dataProfileOther(email){
-	/*var output=serverstub.getUserDataByToken(localStorage.getItem("token"),email);
-	if(output.success){*/
-	    document.getElementById("profileFirstName").innerHTML="hola";/*output.data.firstname;*/
-		document.getElementById("profileFamilyName").innerHTML="hola";/*output.data.familyname;*/
-		document.getElementById("profileGender").innerHTML="hola";/*output.data.gender;*/
-		document.getElementById("profileCity").innerHTML="hola";/*output.data.city;*/
-		document.getElementById("profileCountry").innerHTML="hola";/*output.data.country*/
-        document.getElementById("profileEmail").innerHTML="hola";/*output.data.email*/
-	/*}else{
+	
+	var output=serverstub.getUserDataByEmail(localStorage.getItem("token"),email);
+	if(output.success){
+		document.getElementById("profileFirstNameBrowse").innerHTML=output.data.firstname;
+		document.getElementById("profileFamilyNameBrowse").innerHTML=output.data.familyname;
+		document.getElementById("profileGenderBrowse").innerHTML=output.data.gender;
+		document.getElementById("profileCityBrowse").innerHTML=output.data.city;;
+		document.getElementById("profileCountryBrowse").innerHTML=output.data.country;
+        document.getElementById("profileEmailBrowse").innerHTML=output.data.email;
+	}else{
 		window.alert(output.message);
-	}*/
+	}
+}
+
+function showMessages(messages,father){
+	
+		//delete before message
+		deleteAllChildElement(father);
+        for	(index = 0; index < messages.length; index++) {
+            var node = document.createElement("P");
+            var textnode = document.createTextNode(messages[index].writer+" : "+messages[index].content);
+            node.appendChild(textnode);
+            father.appendChild(node);
+        }
 }
 
 function getMessageOther(email){
-    var output;
-    /*output=serverstub.getUserMessagesByToken(localStorage.getItem("token"),email);
-	if(output.success){*/
-        for	(index = 0; index < output.data.length; index++) {
-            var node = document.createElement("P");
-            var textnode = document.createTextNode(output.data[index].writer+" : "+output.data[index].content);
-            node.appendChild(textnode);
-            document.getElementById("mymessageFrame").appendChild(node);
-        }
-    /*}else{
+    var output=serverstub.getUserMessagesByEmail(localStorage.getItem("token"),email);
+	if(output.success){
+		var father=document.getElementById("listMessageBrowse");
+		showMessages(output.data,father);
+    }else{
         window.alert(output.message);
-    }*/
+    }
 }
+
+//TODO validar correo
 
 function searchProfile(){
     var email=document.getElementById("searchProfile").value;
-    if(email.length>0 && email.length<200){
-        var output=serverstub.getUserMessagesByToken(localStorage.getItem("token"),email);
+    if(email.length>0 && email.length<200 && validateEmail(email)){
+        var output=serverstub.getUserMessagesByEmail(localStorage.getItem("token"),email);
     	if(output.success){
             dataProfileOther(email);
-            getMessageOther(email);
+           	getMessageOther(email);
             //active button of sendMessage
-            document.getElementById("SendMessage").disabled = true;
+            document.getElementById("SendMessageBrowse").disabled = false;
         }else{
             window.alert(output.message);
         }
     }else{
-        window.alert("email empty");
+        window.alert("email not valid");
     }
 
 }
@@ -233,12 +255,12 @@ function searchProfile(){
 
 
 function chanageHome(){
-    //alert(document.getElementById("home").style.display);
     document.getElementById("home").style.display="block";
     document.getElementById("browse").style.display="none";
     document.getElementById("account").style.display="none";
+	var father=document.getElementById("listMessage");
     dataProfile();
-    //getMessage();
+    getMessage(father);
 }
 
 function chanageBrowse(){

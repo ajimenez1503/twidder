@@ -38,15 +38,14 @@ var serverstub = (function() {
 
   var serverstub = {
     signIn: function(email, password){
-        if(true){
-     // if(users[email] != null && users[email].password == password){
+		if(users[email] != null && users[email].password == password){
         var letters = "abcdefghiklmnopqrstuvwwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         var token = "";
         for (var i = 0 ; i < 36 ; ++i) {
           token += letters[Math.floor(Math.random() * letters.length)];
         }
-        //loggedInUsers[token] = email;
-        //persistLoggedInUsers();
+        loggedInUsers[token] = email;
+        persistLoggedInUsers();
         return {"success": true, "message": "Successfully signed in.", "data": token};
       } else {
         return {"success": false, "message": "Wrong username or password."};

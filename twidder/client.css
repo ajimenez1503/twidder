@@ -79,7 +79,7 @@ body  {
 
 /*profile*/
 #home{
-	width:600px;
+	width:750px;
     height: 400px;
 	margin-left: auto;
     margin-right: auto;
@@ -88,22 +88,22 @@ body  {
 	display:none;
 }
 #browse{
-	width:600px;
+	width:750px;
+    height: 450px;
+	margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+	background-color: rgb(255, 255, 255);
+	display:none;
+}
+#account{
+	width:750px;
     height: 400px;
 	margin-left: auto;
     margin-right: auto;
     margin-top: 10px;
 	background-color: rgb(255, 255, 255);
 	display:block;
-}
-#account{
-	width:600px;
-    height: 400px;
-	margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
-	background-color: rgb(255, 255, 255);
-	display:none;
 }
 
 /*account*/
@@ -114,7 +114,6 @@ body  {
   padding-top: 40px;
   width: 199px;
   padding-left: 10px;
-  margin-top: 101px;
 }
 #buttomSignOut{
   float: right;
@@ -130,7 +129,7 @@ body  {
 #dataProfile{
 	padding-bottom: 15px;
     padding-top: 20px;
-    width: 219px;
+    width: 270px;
     padding-left: 31px;
 	float : left;
 }
@@ -149,8 +148,7 @@ body  {
 #mymessage{
 	padding-bottom: 15px;
 	padding-top: 20px;
-	width: 296px;
-	height: 250px;
+	width: 400px;
 	float: right;
 	padding-right: 25px;
 }
@@ -159,33 +157,44 @@ body  {
   	border: 1px solid black;
   	padding-left: 10px;
   	padding-bottom: 20px;
+	height:320px;
+		
+}
+#listMessage, #listMessageBrowse{
+    background-color: rgb(255, 255, 255);
+    border: 1px solid black;
+    padding-left: 10px;
+    height: 203px;
+    width: 364px;
+    margin-bottom: 10px;
+	overflow: scroll;
+
 }
 #mymessageP{
 	text-align: center;
 	font-size: larger;
 	font-weight: bolder;
 }
-#writeMessage{
-	margin-left: 25px;
+#writeMessage, #writeMessageBrowse{
 	height: 25px;
-	width: 230px;
+    width: 377px;
 }
 #sendMessage{
-	margin-left: 25px;
+    margin-top: 10px;
 }
 
 /*browse*/
 #searchProfile{
-	margin-left: 25px;
-	height: 25px;
-	width: 247px;
-	margin-top: 10px;
-	background-color: rgb(123, 205, 255);
+    margin-left: 32px;
+    height: 25px;
+    width: 270px;
+    margin-top: 10px;
+    background-color: rgb(207, 241, 229);
 }
 
 /*tab*/
 .nav-container {
-	width: 600px;
+	width: 750px;
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 26px;
@@ -200,10 +209,9 @@ body  {
 
 .nav-container li {
     float: left;
-
 }
 
-.nav-container li a {
+.nav-container li label {
     display: block;
     color: white;
     text-align: center;
@@ -211,6 +219,10 @@ body  {
     text-decoration: none;
 }
 
-.nav-container li a:hover {/* Change the link color to #111 (black) on hover */
+.nav-container li label:hover {/* Change the link color to #111 (black) on hover */
     background-color: #111;
+}
+
+#ul-right{
+	float:right;
 }
