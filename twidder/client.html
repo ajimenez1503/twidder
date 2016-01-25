@@ -123,7 +123,7 @@
 			<div id="account">
 				<div class="formChangePassword">
 					<p>Change password</p>
-					<form>
+					<form method="POST" action="javascript:void(0);">
                         <label>Old password</label>
                         <input id="formChangePasswordOld" type="password" pattern=".{4,4}" name="password" required></br>
 						<label>New password</label>
@@ -132,5 +132,8 @@
                     </form>
 				</div>
 			</div>
+            <div id="showErrorMessageProfilePage">
+                <p id="errorMessageProfilePage"> Error</p>
+            </div>
     </script>
 </html>

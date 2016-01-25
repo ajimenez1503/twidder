@@ -25,18 +25,18 @@ function validateEmail(email)  {
     }
 }
 
-function showMessagesWelcomePage(element,message,success){
+function showMessagesWelcomePage(page,element,message,success){
 
-    if (typeof(message) === 'string' && typeof(element) === 'string'){
-        document.getElementById("showErrorMessageWelcomePage").style.display="block";
+    if (typeof(message) === 'string' && typeof(element) === 'string' && typeof(page) === 'string'){
+        document.getElementById("showErrorMessage"+page+"Page").style.display="block";
         if(success){
-            document.getElementById("showErrorMessageWelcomePage").style.color="black";
+            document.getElementById("showErrorMessage"+page+"Page").style.color="black";
         }
         else{
-            document.getElementById("showErrorMessageWelcomePage").style.color="red";
+            document.getElementById("showErrorMessage"+page+"Page").style.color="red";
         }
 
-        document.getElementById("errorMessageWelcomePage").innerHTML=element+" : "+message;
+        document.getElementById("errorMessage"+page+"Page").innerHTML=element+" : "+message;
     }
 
 }
@@ -50,10 +50,10 @@ function login(){
 		    localStorage.setItem("token", output.data);
             location.reload();
 		}else{
-			showMessagesWelcomePage("login",output.message,output.success);
+			showMessagesWelcomePage("Welcome","login",output.message,output.success);
 		}
     }else{
-        showMessagesWelcomePage("login","error input",false);
+        showMessagesWelcomePage("Welcome","login","error input",false);
     }
 }
 function notFieldBlank(user){
@@ -91,12 +91,12 @@ function signup(){
             };
             if(notFieldBlank(user) && validateEmail(user.email)){
                 var output=serverstub.signUp(user);
-                showMessagesWelcomePage(output.message,output.success);
+                showMessagesWelcomePage("Welcome","signup",output.message,output.success);
             }else{
-                showMessagesWelcomePage("signup","error input email or black field",false);
+                showMessagesWelcomePage("Welcome","signup","error input email or black field",false);
             }
     }else{
-        showMessagesWelcomePage("signup","error input password",false);
+        showMessagesWelcomePage("Welcome","signup","error input password",false);
     }
 }
 
@@ -113,9 +113,9 @@ function changePassword(){
 	var passwordNew=document.getElementById("formChangePasswordNew").value;
     if(passwordNew.length==sizePasword){
         var output=serverstub.changePassword(localStorage.getItem("token"), passwordOld, passwordNew);
-        window.alert(output.message);
+        showMessagesWelcomePage("Profile","changePassword",output.message,output.success);
     }else{
-        window.alert("error input");
+        showMessagesWelcomePage("Profile","changePassword","error input",false);
     }
 }
 
@@ -150,9 +150,9 @@ function getMessage(father){
     var output;
     output=serverstub.getUserMessagesByToken(localStorage.getItem("token"));
 	if(output.success){
-
         showMessages(output.data,father);
     }else{
+                    
         window.alert(output.message);
     }
 }
