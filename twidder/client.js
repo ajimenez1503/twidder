@@ -1,33 +1,41 @@
-var sizePasword=4;
+/**
+* @author antonio cedric
+* @version 0.1
+*/
+
+var sizePasword=4; //global variable of size of password
+
+/**
+* Display a view according to the token of the user.
+*/
 displayView = function(){
    // the code required to display a view
-
+   if(localStorage.getItem("token") === null){
+       document.getElementById("viewBase").innerHTML = document.getElementById("welcomeview").innerHTML;
+   }else{
+       document.getElementById("viewBase").innerHTML = document.getElementById("profileview").innerHTML;
+   }
 };
 
+/**
+* Display the specific view when the page is reload
+*/
 window.onload = function(){
-    if(localStorage.getItem("token") === null){
-        document.getElementById("viewBase").innerHTML = document.getElementById("welcomeview").innerHTML;
-    }else{
-        document.getElementById("viewBase").innerHTML = document.getElementById("profileview").innerHTML;
-    }
-    //code that is executed as the page is loaded.
-    //You shall put your own custom code here.
+    displayView();
 };
 
 
 
-function validateEmail(email)  {
-    var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if(email.match(mailformat))  {
-        return true;
-    }else {
-        return false;
-    }
-}
-
+/**
+* show the error in a div with is block in this moment
+* @param {string}page of the view, 2 possibility profile or Welcome
+* @param {string}the element of the error, such as: login, message, etc
+* @param {message}message of error
+* @returns {boolean} return true is the operation is success
+*/
 function showErrorMessagesPage(page,element,message,success){
-
-    if (typeof(message) === 'string' && typeof(element) === 'string' && typeof(page) === 'string'){
+    if (typeof(message) === 'string' && typeof(element) === 'string' && typeof(page) === 'string' &&
+        (page="Welcome" || page="Profile")){
         document.getElementById("showErrorMessage"+page+"Page").style.display="block";
         if(success){
             document.getElementById("showErrorMessage"+page+"Page").style.color="black";
@@ -37,10 +45,17 @@ function showErrorMessagesPage(page,element,message,success){
         }
 
         document.getElementById("errorMessage"+page+"Page").innerHTML=element+" : "+message;
+        return true;
+    }else{
+        return false;
     }
 
 }
 
+/**
+* login the user by email and password.
+*The input is validate and show the error in case of problem
+*/
 function login(){
 	var email=document.getElementById("loginEmail").value;
 	var password=document.getElementById("loginPassword").value;
@@ -56,24 +71,11 @@ function login(){
         showErrorMessagesPage("Welcome","login","error input",false);
     }
 }
-function notFieldBlank(user){
-    var state=true;
-    if(user.email.length==0){
-        state=false;
-    }else if (user.password.length!=sizePasword) {
-        state=false;
-    }else if (user.firstname.length==0){
-        state=false;
-    }else if (user.firstname.length==0) {
-        state=false;
-    }else if (user.city.length==0) {
-        state=false;
-    }else if (user.country.length==0) {
-        state=false;
-    }
-    return state;
-}
 
+/**
+*Signup a new  user by email, password firstname, familyname, gender, city, country
+*The input is validate and show the error in case of problem
+*/
 function signup(){
     if(document.getElementById("signupRepeatPSW").value==document.getElementById("signupPassword").value){
             var gender="male";
@@ -89,17 +91,20 @@ function signup(){
               'city': document.getElementById("signupCity").value,
               'country': document.getElementById("signupCountry").value,
             };
-            if(notFieldBlank(user) && validateEmail(user.email)){
+            if(notFieldBlank(user) && validateEmail(user.email) && user.password.length==sizePasword){
                 var output=serverstub.signUp(user);
                 showErrorMessagesPage("Welcome","signup",output.message,output.success);
             }else{
-                showErrorMessagesPage("Welcome","signup","error input email or black field",false);
+                showErrorMessagesPage("Welcome","signup","error inputs",false);
             }
     }else{
-        showErrorMessagesPage("Welcome","signup","error input password",false);
+        showErrorMessagesPage("Welcome","signup","error input password different",false);
     }
 }
-
+/**
+* signout he user
+*remove the localStorage
+*/
 function signout(){
     if(localStorage.getItem("token") != null){
         var output=serverstub.signOut(localStorage.getItem("token"));
@@ -108,6 +113,10 @@ function signout(){
     location.reload();
 }
 
+/**
+* Change the pasword.
+*The input is validate and show the error in case of problem
+*/
 function changePassword(){
 	var passwordOld=document.getElementById("formChangePasswordOld").value;
 	var passwordNew=document.getElementById("formChangePasswordNew").value;
@@ -119,7 +128,10 @@ function changePassword(){
     }
 }
 
-
+/**
+* login the user by email and password.
+*The input is validate and show the error in case of problem
+*/
 function dataProfile(){
 	var output=serverstub.getUserDataByToken(localStorage.getItem("token"));
 	if(output.success){
@@ -132,12 +144,6 @@ function dataProfile(){
 	}else{
         showErrorMessagesPage("Profile","showdata",output.message,output.success);
 	}
-}
-
-function reloadpage(){
-    dataProfile();
-	var father=document.getElementById("listMessage");
-    getMessage(father);
 }
 
 function deleteAllChildElement(node){
