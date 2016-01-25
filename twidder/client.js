@@ -25,19 +25,35 @@ function validateEmail(email)  {
     }
 }
 
+function showMessagesWelcomePage(element,message,success){
+
+    if (typeof(message) === 'string' && typeof(element) === 'string'){
+        document.getElementById("showErrorMessageWelcomePage").style.display="block";
+        if(success){
+            document.getElementById("showErrorMessageWelcomePage").style.color="black";
+        }
+        else{
+            document.getElementById("showErrorMessageWelcomePage").style.color="red";
+        }
+
+        document.getElementById("errorMessageWelcomePage").innerHTML=element+" : "+message;
+    }
+
+}
+
 function login(){
 	var email=document.getElementById("loginEmail").value;
 	var password=document.getElementById("loginPassword").value;
     if(email.length>0 && password.length==sizePasword && validateEmail(email)){
         var output=serverstub.signIn(email, password);
 		if(output.success){
-		    window.alert(output.message+"   "+output.data);
 		    localStorage.setItem("token", output.data);
+            location.reload();
 		}else{
-			window.alert(output.message);
+			showMessagesWelcomePage("login",output.message,output.success);
 		}
     }else{
-        window.alert("error input");
+        showMessagesWelcomePage("login","error input",false);
     }
 }
 function notFieldBlank(user){
@@ -75,19 +91,18 @@ function signup(){
             };
             if(notFieldBlank(user) && validateEmail(user.email)){
                 var output=serverstub.signUp(user);
-                window.alert(output.message);
+                showMessagesWelcomePage(output.message,output.success);
             }else{
-                window.alert("error input email or black");
+                showMessagesWelcomePage("signup","error input email or black field",false);
             }
     }else{
-        window.alert("error input password");
+        showMessagesWelcomePage("signup","error input password",false);
     }
 }
 
 function signout(){
     if(localStorage.getItem("token") != null){
         var output=serverstub.signOut(localStorage.getItem("token"));
-        window.alert(output.message);
         localStorage.removeItem("token");
     }
     location.reload();
@@ -135,7 +150,7 @@ function getMessage(father){
     var output;
     output=serverstub.getUserMessagesByToken(localStorage.getItem("token"));
 	if(output.success){
-		
+
         showMessages(output.data,father);
     }else{
         window.alert(output.message);
@@ -178,7 +193,7 @@ function sendMessagetoOther(){
 }
 
 function dataProfileOther(email){
-	
+
 	var output=serverstub.getUserDataByEmail(localStorage.getItem("token"),email);
 	if(output.success){
 		document.getElementById("profileFirstNameBrowse").innerHTML=output.data.firstname;
@@ -193,7 +208,7 @@ function dataProfileOther(email){
 }
 
 function showMessages(messages,father){
-	
+
 		//delete before message
 		deleteAllChildElement(father);
         for	(index = 0; index < messages.length; index++) {

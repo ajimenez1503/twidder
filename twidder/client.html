@@ -9,13 +9,14 @@
     <body id="viewBase">
     </body>
     <script id="welcomeview" type=”text/view”>
+
             <div class="container">
                 <div class="logo">
                     <img id="imgLogo" src="img/wimage.png" alt="log and slogan">
                 </div>
                 <div class="log">
                     <div class="login">
-                        <form>
+                        <form method="POST" action="javascript:void(0);">
                             <label>Email</label>
                             <input  id="loginEmail" type="email" name="email" required>
                             <label>Password</label>
@@ -25,7 +26,7 @@
                     </div>
                     <div class="singup">
                         <p>Sign up here</p>
-                        <form>
+                        <form method="POST" action="javascript:void(0);">
                             <label>First name</label>
                             <input  id="signupFirstName" type="text" name="firstname" required>
                             <label>Family name</label>
@@ -49,7 +50,9 @@
                         </form>
                     </div>
                 </div>
-
+            </div>
+            <div id="showErrorMessageWelcomePage">
+                <p id="errorMessageWelcomePage"> Error</p>
             </div>
     </script>
     <script id="profileview" type=”text/view”>
