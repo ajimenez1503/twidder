@@ -248,7 +248,7 @@ function searchProfile(){
 
 function changeTab(tab){
     if(typeof(tab) === 'string') {
-        document.getElementById("showErrorMessage"+page+"Page").style.display="none";
+        document.getElementById("showErrorMessageProfilePage").style.display="none";
         if(tab=="home"){
             document.getElementById("home").style.display="block";
             document.getElementById("browse").style.display="none";
