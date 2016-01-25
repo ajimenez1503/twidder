@@ -25,7 +25,7 @@ function validateEmail(email)  {
     }
 }
 
-function showMessagesWelcomePage(page,element,message,success){
+function showErrorMessagesPage(page,element,message,success){
 
     if (typeof(message) === 'string' && typeof(element) === 'string' && typeof(page) === 'string'){
         document.getElementById("showErrorMessage"+page+"Page").style.display="block";
@@ -50,10 +50,10 @@ function login(){
 		    localStorage.setItem("token", output.data);
             location.reload();
 		}else{
-			showMessagesWelcomePage("Welcome","login",output.message,output.success);
+			showErrorMessagesPage("Welcome","login",output.message,output.success);
 		}
     }else{
-        showMessagesWelcomePage("Welcome","login","error input",false);
+        showErrorMessagesPage("Welcome","login","error input",false);
     }
 }
 function notFieldBlank(user){
@@ -91,12 +91,12 @@ function signup(){
             };
             if(notFieldBlank(user) && validateEmail(user.email)){
                 var output=serverstub.signUp(user);
-                showMessagesWelcomePage("Welcome","signup",output.message,output.success);
+                showErrorMessagesPage("Welcome","signup",output.message,output.success);
             }else{
-                showMessagesWelcomePage("Welcome","signup","error input email or black field",false);
+                showErrorMessagesPage("Welcome","signup","error input email or black field",false);
             }
     }else{
-        showMessagesWelcomePage("Welcome","signup","error input password",false);
+        showErrorMessagesPage("Welcome","signup","error input password",false);
     }
 }
 
@@ -113,9 +113,9 @@ function changePassword(){
 	var passwordNew=document.getElementById("formChangePasswordNew").value;
     if(passwordNew.length==sizePasword){
         var output=serverstub.changePassword(localStorage.getItem("token"), passwordOld, passwordNew);
-        showMessagesWelcomePage("Profile","changePassword",output.message,output.success);
+        showErrorMessagesPage("Profile","changePassword",output.message,output.success);
     }else{
-        showMessagesWelcomePage("Profile","changePassword","error input",false);
+        showErrorMessagesPage("Profile","changePassword","error input",false);
     }
 }
 
@@ -130,7 +130,7 @@ function dataProfile(){
 		document.getElementById("profileCountry").innerHTML=output.data.country;
         document.getElementById("profileEmail").innerHTML=output.data.email;
 	}else{
-		window.alert(output.message);
+        showErrorMessagesPage("Profile","showdata",output.message,output.success);
 	}
 }
 
@@ -152,8 +152,7 @@ function getMessage(father){
 	if(output.success){
         showMessages(output.data,father);
     }else{
-                    
-        window.alert(output.message);
+        showErrorMessagesPage("Profile","show message",output.message,output.success);
     }
 }
 function sendMessage(message,email,father){
@@ -163,7 +162,7 @@ function sendMessage(message,email,father){
 		document.getElementById("writeMessage").value="";//TODO arregarlo solo uno
 		getMessage(father);
 	}else{
-        window.alert(output.message);
+        showErrorMessagesPage("Profile","send message",output.message,output.success);
     }
 }
 function sendMessagetoMe(){
@@ -174,10 +173,10 @@ function sendMessagetoMe(){
 			var father=document.getElementById("listMessage");
             sendMessage(message,profile.data.email,father);
         }else{
-            window.alert(profile.message);
+            showErrorMessagesPage("Profile","show message",profile.message,profile.success);
         }
     }else{
-        window.alert("message empty");
+        showErrorMessagesPage("Profile","send message","message empty",false);
     }
 }
 
@@ -188,7 +187,7 @@ function sendMessagetoOther(){
 		var father=document.getElementById("listMessageBrowse");
         sendMessage(message,user,father);
     }else{
-        window.alert("message empty");
+        showErrorMessagesPage("Profile","send message","message empty",false);
     }
 }
 
@@ -203,12 +202,11 @@ function dataProfileOther(email){
 		document.getElementById("profileCountryBrowse").innerHTML=output.data.country;
         document.getElementById("profileEmailBrowse").innerHTML=output.data.email;
 	}else{
-		window.alert(output.message);
+		showErrorMessagesPage("Profile","showdata",output.message,output.success);
 	}
 }
 
 function showMessages(messages,father){
-
 		//delete before message
 		deleteAllChildElement(father);
         for	(index = 0; index < messages.length; index++) {
@@ -225,11 +223,10 @@ function getMessageOther(email){
 		var father=document.getElementById("listMessageBrowse");
 		showMessages(output.data,father);
     }else{
-        window.alert(output.message);
+        showErrorMessagesPage("Profile","showdata",output.message,output.success);
     }
 }
 
-//TODO validar correo
 
 function searchProfile(){
     var email=document.getElementById("searchProfile").value;
@@ -241,51 +238,32 @@ function searchProfile(){
             //active button of sendMessage
             document.getElementById("SendMessageBrowse").disabled = false;
         }else{
-            window.alert(output.message);
+            showErrorMessagesPage("Profile","search profile",output.message,output.success);
         }
     }else{
-        window.alert("email not valid");
+        showErrorMessagesPage("Profile","search profile","email not valid",false);
     }
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function chanageHome(){
-    document.getElementById("home").style.display="block";
-    document.getElementById("browse").style.display="none";
-    document.getElementById("account").style.display="none";
-	var father=document.getElementById("listMessage");
-    dataProfile();
-    getMessage(father);
-}
-
-function chanageBrowse(){
-    document.getElementById("home").style.display="none";
-    document.getElementById("browse").style.display="block";
-    document.getElementById("account").style.display="none";
-}
-
-function chanageAccount(){
-    document.getElementById("home").style.display="none";
-    document.getElementById("browse").style.display="none";
-    document.getElementById("account").style.display="block";
+function changeTab(tab){
+    if(typeof(tab) === 'string') {
+        document.getElementById("showErrorMessage"+page+"Page").style.display="none";
+        if(tab=="home"){
+            document.getElementById("home").style.display="block";
+            document.getElementById("browse").style.display="none";
+            document.getElementById("account").style.display="none";
+        	var father=document.getElementById("listMessage");
+            dataProfile();
+            getMessage(father);
+        }else if(tab=="browse"){
+            document.getElementById("home").style.display="none";
+            document.getElementById("browse").style.display="block";
+            document.getElementById("account").style.display="none";
+        }else if(tab=="account"){
+            document.getElementById("home").style.display="none";
+            document.getElementById("browse").style.display="none";
+            document.getElementById("account").style.display="block";
+        }
+    }
 }
