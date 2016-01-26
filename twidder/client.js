@@ -3,7 +3,7 @@
 * @version 0.1
 */
 
-var sizePasword=4; //global variable of size of password
+var minSizePassword=4; //global variable of size of password
 
 /**
 * Display a view according to the token of the user.
@@ -17,11 +17,24 @@ displayView = function(){
    }
 };
 
+
+/**
+* Display the data of the user in the tab home
+*/
+displayData = function(){
+   // the code required to display a view
+   if(localStorage.getItem("token") != null){
+       dataProfile();
+       getMessage();
+   }
+};
+
 /**
 * Display the specific view when the page is reload
 */
 window.onload = function(){
     displayView();
+    displayData();
 };
 
 
@@ -59,7 +72,7 @@ function showErrorMessagesPage(page,element,message,success){
 function login(){
 	var email=document.getElementById("loginEmail").value;
 	var password=document.getElementById("loginPassword").value;
-    if(email.length>0 && password.length==sizePasword && validateEmail(email)){
+    if(email.length>0 && password.length>=minSizePassword && validateEmail(email)){
         var output=serverstub.signIn(email, password);
 		if(output.success){
 		    localStorage.setItem("token", output.data);
@@ -91,7 +104,7 @@ function signup(){
               'city': document.getElementById("signupCity").value,
               'country': document.getElementById("signupCountry").value,
             };
-            if(notFieldBlank(user) && validateEmail(user.email) && user.password.length==sizePasword){
+            if(notFieldBlank(user) && validateEmail(user.email) && user.password.length>=minSizePassword){
                 var output=serverstub.signUp(user);
                 showErrorMessagesPage("Welcome","signup",output.message,output.success);
             }else{
@@ -120,7 +133,7 @@ function signout(){
 function changePassword(){
 	var passwordOld=document.getElementById("formChangePasswordOld").value;
 	var passwordNew=document.getElementById("formChangePasswordNew").value;
-    if(passwordNew.length==sizePasword){
+    if(passwordNew.length>=minSizePassword){
         var output=serverstub.changePassword(localStorage.getItem("token"), passwordOld, passwordNew);
         showErrorMessagesPage("Profile","changePassword",output.message,output.success);
     }else{
@@ -222,15 +235,21 @@ function searchProfile(){
     if(email.length>0 && email.length<200 && validateEmail(email)){
         var output=serverstub.getUserMessagesByEmail(localStorage.getItem("token"),email);
     	if(output.success){
-            dataProfile(email);
-           	getMessage(email);
             //active button of sendMessage
             document.getElementById("SendMessageBrowse").disabled = false;
+            //show div of data and message
+            document.getElementById("browseDataUser").style.display="block";
+            dataProfile(email);
+           	getMessage(email);
+
         }else{
             showErrorMessagesPage("Profile","search profile",output.message,output.success);
+            //show div of data and message
+            document.getElementById("browseDataUser").style.display="none";//
         }
     }else{
         showErrorMessagesPage("Profile","search profile","email not valid",false);
+        document.getElementById("browseDataUser").style.display="none";//show div of data and message
     }
 
 }

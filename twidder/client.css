@@ -7,7 +7,7 @@ body  {
 	background-color: rgb(123, 123, 255);
 }
 .container{
-    width:630px;
+    width:625px;
     height: 400px;
 	margin-left: auto;
     margin-right: auto;
@@ -28,12 +28,13 @@ body  {
     width:273px;
     height: 400px;
 	float: right;
+	margin-left: 10px;
 }
 .login{
-    width:260px;
-    height: 80px;
+	width: 260px;
+	height: 80px;
 	background-color: rgb(255, 255, 255);
-	margin-bottom: 10px;
+	margin-bottom: 5px;
 	padding-top: 10px;
 	text-align: right;
 	border: 1px solid black;
@@ -51,8 +52,8 @@ body  {
 	margin-bottom: 3px;
 }
 .singup{
-    width:260px;
-    height: 290px;
+	width: 260px;
+	height: 293px;
 	background-color: rgb(255, 255, 255);
 	margin-bottom: 10px;
 	padding-top: 10px;
@@ -83,7 +84,7 @@ body  {
 	margin-right: 3px;
 }
 #showErrorMessageWelcomePage{
-	width: 630px;
+	width: 620px;
     height: 59px;
     background-color: rgb(255, 255, 255);
     padding-top: 10px;
@@ -104,7 +105,7 @@ body  {
     margin-right: auto;
     margin-top: 10px;
 	background-color: rgb(255, 255, 255);
-	display:none;
+	display:block;
 }
 #browse{
 	width:750px;
@@ -122,7 +123,7 @@ body  {
     margin-right: auto;
     margin-top: 10px;
 	background-color: rgb(255, 255, 255);
-	display:block;
+	display:none;
 }
 
 /*account*/
@@ -203,6 +204,21 @@ body  {
 }
 
 
+
+
+/*browse*/
+#searchProfile{
+    margin-left: 32px;
+    height: 25px;
+    width: 270px;
+    margin-top: 10px;
+    background-color: rgb(207, 241, 229);
+}
+#browseDataUser{
+	display: none;
+}
+
+
 #showErrorMessageProfilePage{
 	width:750px;
     height: 59px;
@@ -216,16 +232,6 @@ body  {
 	color: red;
 	display: none;
 }
-
-/*browse*/
-#searchProfile{
-    margin-left: 32px;
-    height: 25px;
-    width: 270px;
-    margin-top: 10px;
-    background-color: rgb(207, 241, 229);
-}
-
 /*tab*/
 .nav-container {
 	width: 750px;

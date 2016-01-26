@@ -21,7 +21,7 @@
                             <label>Email</label>
                             <input  id="loginEmail" type="email" name="email" required>
                             <label>Password</label>
-                            <input id="loginPassword" type="password" pattern=".{4,4}" name="password" required></br>
+                            <input id="loginPassword" type="password" pattern=".{4,}" name="password" required></br>
                             <input  type="submit" onClick="login()" value="Login">
                         </form>
                     </div>
@@ -44,9 +44,9 @@
                             <label>Email</label>
                             <input id="signupEmail"  type="email" name="email" required>
                             <label>Password</label>
-                            <input id="signupPassword"  type="password" pattern=".{4,4}" name="password" required>
+                            <input id="signupPassword"  type="password" pattern=".{4,}" name="password" required>
                             <label>Repeat PSW</label>
-                            <input id="signupRepeatPSW" type="password" pattern=".{4,4}" name="repeatpassword" required>
+                            <input id="signupRepeatPSW" type="password" pattern=".{4,}" name="repeatpassword" required>
                             <input  type="submit" onClick="signup()" value="SignUp">
                         </form>
                     </div>
@@ -59,8 +59,8 @@
     <script id="profileview" type=”text/view”>
             <div class="nav-container">
                 <ul>
-					<li onclick="changeTab('account')"><label>Account</label></li>
                     <li onclick="changeTab('home')"><label>Home</label></li>
+					<li onclick="changeTab('account')"><label>Account</label></li>
                     <li onclick="changeTab('browse')"><label>Browse</label></li>
 					<ul id="ul-right">
     					<li onclick="signout()"><label>Log out</label></li>
@@ -96,7 +96,7 @@
 			<div id="browse">
                 <input id="searchProfile" type="email" maxlength="200" name="searchProfile" required>
                 <button id="ButtonSearchProfile" onClick="searchProfile()" type="button">Send</button>
-                <div>
+                <div id="browseDataUser">
                     <div id="dataProfile">
                         <div id="dataProfileFrame">
                             <p>Info user</p>
@@ -126,9 +126,9 @@
 					<p>Change password</p>
 					<form method="POST" action="javascript:void(0);">
                         <label>Old password</label>
-                        <input id="formChangePasswordOld" type="password" pattern=".{4,4}" name="password" required></br>
+                        <input id="formChangePasswordOld" type="password" pattern=".{4,}"  name="password" required></br>
 						<label>New password</label>
-                        <input id="formChangePasswordNew" type="password" pattern=".{4,4}" name="password" required></br>
+                        <input id="formChangePasswordNew" type="password" pattern=".{4,}" name="password" required></br>
                         <input  type="submit" onClick="changePassword()" value="Change">
                     </form>
 				</div>
