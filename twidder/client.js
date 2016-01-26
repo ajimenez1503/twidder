@@ -1,5 +1,5 @@
 /**
-* @author antonio cedric
+* @author antonio Jimenez (antji996) cedric Lallemand (cedla736)
 * @version 0.1
 */
 
