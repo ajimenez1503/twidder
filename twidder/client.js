@@ -35,7 +35,7 @@ window.onload = function(){
 */
 function showErrorMessagesPage(page,element,message,success){
     if (typeof(message) === 'string' && typeof(element) === 'string' && typeof(page) === 'string' &&
-        (page="Welcome" || page="Profile")){
+        (page=="Welcome" || page=="Profile")){
         document.getElementById("showErrorMessage"+page+"Page").style.display="block";
         if(success){
             document.getElementById("showErrorMessage"+page+"Page").style.color="black";
@@ -129,55 +129,45 @@ function changePassword(){
 }
 
 /**
-* login the user by email and password.
-*The input is validate and show the error in case of problem
+* show the data of the own user or the user by email
+* @param {string}email. If the email is null the is own user in the opposite case we check the data of the user user
 */
-function dataProfile(){
-	var output=serverstub.getUserDataByToken(localStorage.getItem("token"));
-	if(output.success){
-	    document.getElementById("profileFirstName").innerHTML=output.data.firstname;
-		document.getElementById("profileFamilyName").innerHTML=output.data.familyname;
-		document.getElementById("profileGender").innerHTML=output.data.gender;
-		document.getElementById("profileCity").innerHTML=output.data.city;;
-		document.getElementById("profileCountry").innerHTML=output.data.country;
-        document.getElementById("profileEmail").innerHTML=output.data.email;
-	}else{
-        showErrorMessagesPage("Profile","showdata",output.message,output.success);
-	}
-}
-
-function deleteAllChildElement(node){
-		while (node.firstChild) {
-    		node.removeChild(node.firstChild);
-		}
-}
-
-function getMessage(father){
+function dataProfile(email){
+    var view="";
     var output;
-    output=serverstub.getUserMessagesByToken(localStorage.getItem("token"));
-	if(output.success){
-        showMessages(output.data,father);
+    if(email==null){
+        output=serverstub.getUserDataByToken(localStorage.getItem("token"));
+    }
+    else if (typeof(email) === 'string'){
+        view="Browse";
+        output=serverstub.getUserDataByEmail(localStorage.getItem("token"),email);
+    }
+    if(output!=null){
+    	if(output.success){
+    		document.getElementById("profileFirstName"+view).innerHTML=output.data.firstname;
+    		document.getElementById("profileFamilyName"+view).innerHTML=output.data.familyname;
+    		document.getElementById("profileGender"+view).innerHTML=output.data.gender;
+    		document.getElementById("profileCity"+view).innerHTML=output.data.city;;
+    		document.getElementById("profileCountry"+view).innerHTML=output.data.country;
+            document.getElementById("profileEmail"+view).innerHTML=output.data.email;
+    	}else{
+    		showErrorMessagesPage("Profile","showdata",output.message,output.success);
+    	}
     }else{
-        showErrorMessagesPage("Profile","show message",output.message,output.success);
+        showErrorMessagesPage("Profile","showdata","error eamil",false);
     }
 }
-function sendMessage(message,email,father){
-    var output=serverstub.postMessage(localStorage.getItem("token"),message,email);
-	if(output.success){
-		document.getElementById("writeMessageBrowse").value="";
-		document.getElementById("writeMessage").value="";//TODO arregarlo solo uno
-		getMessage(father);
-	}else{
-        showErrorMessagesPage("Profile","send message",output.message,output.success);
-    }
-}
+
+/**
+* send message to myself
+*/
 function sendMessagetoMe(){
-    var message=document.getElementById("writeMessage").value;
+    var message=document.getElementById("writeMessage").value;//read message
+    //TODO validate message without javascript
     if(message.length>0 && message.length<200){
-        var profile=serverstub.getUserDataByToken(localStorage.getItem("token"));
+        var profile=serverstub.getUserDataByToken(localStorage.getItem("token"));//take the profile for take the own email
     	if(profile.success){
-			var father=document.getElementById("listMessage");
-            sendMessage(message,profile.data.email,father);
+            sendMessage(message,profile.data.email,false);
         }else{
             showErrorMessagesPage("Profile","show message",profile.message,profile.success);
         }
@@ -185,62 +175,55 @@ function sendMessagetoMe(){
         showErrorMessagesPage("Profile","send message","message empty",false);
     }
 }
-
+/**
+* send message other user by email
+*/
 function sendMessagetoOther(){
-    var message=document.getElementById("writeMessageBrowse").value;
-    var user=document.getElementById("searchProfile").value;
-    if(message.length>0 && message.length<200 && user.length>0 && user.length<200 ){
-		var father=document.getElementById("listMessageBrowse");
-        sendMessage(message,user,father);
+    var message=document.getElementById("writeMessageBrowse").value;//read message
+    var email=document.getElementById("searchProfile").value;//read email
+    if(message.length>0 && message.length<200 && validateEmail(email)  ){
+        sendMessage(message,email,true);
     }else{
-        showErrorMessagesPage("Profile","send message","message empty",false);
+        showErrorMessagesPage("Profile","send message","message empty or problem email",false);
     }
 }
-
-function dataProfileOther(email){
-
-	var output=serverstub.getUserDataByEmail(localStorage.getItem("token"),email);
-	if(output.success){
-		document.getElementById("profileFirstNameBrowse").innerHTML=output.data.firstname;
-		document.getElementById("profileFamilyNameBrowse").innerHTML=output.data.familyname;
-		document.getElementById("profileGenderBrowse").innerHTML=output.data.gender;
-		document.getElementById("profileCityBrowse").innerHTML=output.data.city;;
-		document.getElementById("profileCountryBrowse").innerHTML=output.data.country;
-        document.getElementById("profileEmailBrowse").innerHTML=output.data.email;
-	}else{
-		showErrorMessagesPage("Profile","showdata",output.message,output.success);
-	}
-}
-
-function showMessages(messages,father){
-		//delete before message
-		deleteAllChildElement(father);
-        for	(index = 0; index < messages.length; index++) {
-            var node = document.createElement("P");
-            var textnode = document.createTextNode(messages[index].writer+" : "+messages[index].content);
-            node.appendChild(textnode);
-            father.appendChild(node);
+/**
+* get the messages of a user: own user or new user by email
+* @param {string}email. If the email is null the is own user in the opposite case we check the data of the user user
+*/
+function getMessage(email){
+    var output;
+    var father;//element to display messages
+    if(email==null){
+        father=document.getElementById("listMessage");
+        output=serverstub.getUserMessagesByToken(localStorage.getItem("token"));
+    }
+    else if (typeof(email) === 'string'){
+        father=document.getElementById("listMessageBrowse");
+        output=serverstub.getUserMessagesByEmail(localStorage.getItem("token"),email);
+    }
+    if(output!=null && father!=null){
+        if(output.success){
+            showMessages(output.data,father);
+        }else{
+            showErrorMessagesPage("Profile","show message",output.message,output.success);
         }
-}
-
-function getMessageOther(email){
-    var output=serverstub.getUserMessagesByEmail(localStorage.getItem("token"),email);
-	if(output.success){
-		var father=document.getElementById("listMessageBrowse");
-		showMessages(output.data,father);
     }else{
-        showErrorMessagesPage("Profile","showdata",output.message,output.success);
+        showErrorMessagesPage("Profile","show message","error email",false);
     }
 }
 
-
+/**
+* read the email write by the user and then look for  the profile of the new user ( data an messages)
+* Now the user has the possibility of send message to the new user.
+*/
 function searchProfile(){
     var email=document.getElementById("searchProfile").value;
     if(email.length>0 && email.length<200 && validateEmail(email)){
         var output=serverstub.getUserMessagesByEmail(localStorage.getItem("token"),email);
     	if(output.success){
-            dataProfileOther(email);
-           	getMessageOther(email);
+            dataProfile(email);
+           	getMessage(email);
             //active button of sendMessage
             document.getElementById("SendMessageBrowse").disabled = false;
         }else{
@@ -252,6 +235,19 @@ function searchProfile(){
 
 }
 
+/**
+* update the list of message
+*/
+function reloadMessage(){
+    getMessage();
+}
+
+
+/**
+* On the view profle there are 3 tab: home account browse. The argument tab will be display.
+*The block for show erro will hidden
+* @param {string} the name of the tab
+*/
 function changeTab(tab){
     if(typeof(tab) === 'string') {
         document.getElementById("showErrorMessageProfilePage").style.display="none";
@@ -259,9 +255,8 @@ function changeTab(tab){
             document.getElementById("home").style.display="block";
             document.getElementById("browse").style.display="none";
             document.getElementById("account").style.display="none";
-        	var father=document.getElementById("listMessage");
             dataProfile();
-            getMessage(father);
+            getMessage();
         }else if(tab=="browse"){
             document.getElementById("home").style.display="none";
             document.getElementById("browse").style.display="block";
