@@ -72,7 +72,7 @@ function showErrorMessagesPage(page,element,message,success){
 function login(){
 	var email=document.getElementById("loginEmail").value;
 	var password=document.getElementById("loginPassword").value;
-    if(email.length>0 && password.length>=minSizePassword && validateEmail(email)){
+    if(password.length>=minSizePassword && validateEmail(email)){
         var output=serverstub.signIn(email, password);
 		if(output.success){
 		    localStorage.setItem("token", output.data);
