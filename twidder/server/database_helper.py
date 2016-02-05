@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 __author__ = 'Antonio'
 import sqlite3
+import hashlib
 from flask import g
 from contextlib import closing
 
@@ -30,7 +32,9 @@ def close_db():
 """
 def sign_in(email,password):
 	db=get_db()
-	result=db.execute('select id from profile where email=? and password=?',(email,password))
+	sha=hashlib.sha256(password)
+	hashed = sha.hexdigest()
+	result=db.execute('select id from profile where email=? and password=?',(email,hashed))
 	user=result.fetchone()
 	if user is None:
 		return 'user not found'
@@ -44,8 +48,10 @@ def sign_in(email,password):
 """
 def sign_up(email,password,firstname,familyname,gender,city,country):
 	db=get_db()
+	sha=hashlib.sha256(password)
+	hashed = sha.hexdigest()
 	try:
-		db.execute('insert into profile (email,password,firstname, familyname,gender,city,country) values (?,?,?,?,?,?,?)',(email,password,firstname, familyname,gender,city,country))
+		db.execute('insert into profile (email,password,firstname, familyname,gender,city,country) values (?,?,?,?,?,?,?)',(email,hashed,firstname, familyname,gender,city,country))
 	except Exception as e:
 		return False
 	db.commit()
@@ -88,7 +94,11 @@ def get_user_data_by_email(email):
 """
 def change_password(id_user,password,new_password):
 	db=get_db()
-	db.execute('update profile set password=? where  id=? and password=?',(new_password,id_user,password))
+	sha=hashlib.sha256(password)
+	old_hashed = sha.hexdigest()
+	sha=hashlib.sha256(new_password)
+	new_hashed = sha.hexdigest()
+	db.execute('update profile set password=? where  id=? and password=?',(new_hashed,id_user,old_hashed))
 	if db.total_changes<=0:
 		db.commit()
 		return False
@@ -132,7 +142,7 @@ def get_messages_by_email(email):
 	result=db.execute('select id from profile where email=?',(email,))
 	user=result.fetchone()
 	if user is None:
-		return 'email is wrong'
+		return 'wrong email'
 	result=db.execute('select fromEmail,message from message where toEmail=?',(email,))
 	messages = [dict(fromEmail=row[0], message=row[1])for row in result.fetchall()]
 	return messages
