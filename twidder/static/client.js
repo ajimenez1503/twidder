@@ -102,7 +102,7 @@ function login(){
 		xmlHttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 		xmlHttp.send(params);
     }else{
-        showErrorMessagesPage("Welcome","login","error input",false);
+       showErrorMessagesPage("Welcome","login","connection failed",false);
     }
 }
 
@@ -111,7 +111,6 @@ function login(){
 *The input is validate and show the error in case of problem
 */
 function signup(){
-    if(document.getElementById("signupRepeatPSW").value==document.getElementById("signupPassword").value){
         var gender="male";
         if(document.getElementById("signupFemale").selected==true){
             gender="female";
@@ -119,31 +118,38 @@ function signup(){
         var user = {
           'email': document.getElementById("signupEmail").value,
           'password':document.getElementById("signupPassword").value,
+		  'repeat_password':document.getElementById("signupRepeatPSW").value,
           'firstname': document.getElementById("signupFirstName").value,
           'familyname': document.getElementById("signupFamilyName").value,
           'gender': gender,
           'city': document.getElementById("signupCity").value,
           'country': document.getElementById("signupCountry").value,
         };
-        if(notFieldBlank(user) && validateEmail(user.email) && user.password.length>=minSizePassword){
-			var url="http://127.0.0.1:5000/signup";
-			var xmlHttp =new XMLHttpRequest(); 
-			xmlHttp.onreadystatechange = function() { 
-				if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
-					var output= JSON.parse(xmlHttp.responseText);        
-					showErrorMessagesPage("Welcome","signup",output.message,output.success);          
-				}
+        if(user.firstname.length==0){showErrorMessagesPage("Welcome","signup","First name field empty",false);return;}
+console.log(user.firstname.length);
+		if(user.familyname.length==0){showErrorMessagesPage("Welcome","signup","Last name field empty",false);return;}
+		if(user.city.length==0){showErrorMessagesPage("Welcome","signup","City field empty",false);return;}
+		if(user.country.length==0){showErrorMessagesPage("Welcome","signup","Country field empty",false);return;}
+		if(!validateEmail(user.email)){showErrorMessagesPage("Welcome","signup","email invalid",false);return;}
+		if(user.password.length<minSizePassword){showErrorMessagesPage("Welcome","signup","password as to be more than "+minSizePassword+" characters",false);return;}
+		if(user.repeat_password != user.password){showErrorMessagesPage("Welcome","signup","passwords do not match",false);return}
+
+
+
+		var url="http://127.0.0.1:5000/signup";
+		var xmlHttp =new XMLHttpRequest(); 
+		xmlHttp.onreadystatechange = function() { 
+			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+				var output= JSON.parse(xmlHttp.responseText);        
+				showErrorMessagesPage("Welcome","signup",output.message,output.success);          
 			}
-			xmlHttp.open("POST", url, true );
-			xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-			var params = "password="+user.password+"&email="+user.email+"&firstname="+user.firstname+"&familyname="+user.familyname+"&gender="+user.gender+"&city="+user.city+"&country="+user.country;
-			xmlHttp.send(params);				
-        }else{
-            showErrorMessagesPage("Welcome","signup","error inputs",false);
-        }
-    }else{
-        showErrorMessagesPage("Welcome","signup","error input password different",false);
-    }
+		}
+		xmlHttp.open("POST", url, true );
+		xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		var params = "password="+user.password+"&email="+user.email+"&firstname="+user.firstname+"&familyname="+user.familyname+"&gender="+user.gender+"&city="+user.city+"&country="+user.country;
+		xmlHttp.send(params);				
+
+
 }
 /**
 * signout he user
@@ -173,22 +179,27 @@ function signout(){
 function changePassword(){
 	var passwordOld=document.getElementById("formChangePasswordOld").value;
 	var passwordNew=document.getElementById("formChangePasswordNew").value;
-    if(passwordNew.length>=minSizePassword){
-		var url="http://127.0.0.1:5000/changepassword";
-		var xmlHttp =new XMLHttpRequest(); 
-		xmlHttp.onreadystatechange = function() { 
-			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
-				var output= JSON.parse(xmlHttp.responseText);        
-				showErrorMessagesPage("Profile","changePassword",output.message,output.success);       
+	var passwordNewRepeat=document.getElementById("formChangePasswordNewRepeat").value;
+	if(passwordNew==passwordNewRepeat){
+		if(passwordNew.length>=minSizePassword){
+			var url="http://127.0.0.1:5000/changepassword";
+			var xmlHttp =new XMLHttpRequest(); 
+			xmlHttp.onreadystatechange = function() { 
+				if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+					var output= JSON.parse(xmlHttp.responseText);        
+					showErrorMessagesPage("Profile","changePassword",output.message,output.success);       
+				}
 			}
+			xmlHttp.open("POST", url, true );
+			xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			var params = "password="+passwordOld+"&new_password="+passwordNew+"&token="+localStorage.getItem("token");
+			xmlHttp.send(params);		
+		}else{
+		    showErrorMessagesPage("Profile","changePassword","error input",false);
 		}
-		xmlHttp.open("POST", url, true );
-		xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-		var params = "password="+passwordOld+"&new_password="+passwordNew+"&token="+localStorage.getItem("token");
-		xmlHttp.send(params);		
-    }else{
-        showErrorMessagesPage("Profile","changePassword","error input",false);
-    }
+	}else{
+		    showErrorMessagesPage("Profile","changePassword","passwords not identical ",false);
+		}
 }
 
 /**

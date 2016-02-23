@@ -88,7 +88,7 @@ def sign_up():
 		if result == True:
 			return return_json(200,True,'User added')
 		else:	
-			return return_json(400,False,'sign up fail')
+			return return_json(400,False,'email already used')
 	else:
 		return return_json(400,False,'wrongg inputs')
 
@@ -119,6 +119,7 @@ def sign_out(token = None):
 	if token != None:
 		if list_token_id.has_key(token):
 			list_token_id.pop(token)
+			list_conection.pop(token)
 			return return_json(200,True,'user disconnected')
 		else:
 			return return_json(404,False,'user not found')

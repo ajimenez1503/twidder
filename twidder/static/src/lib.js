@@ -47,20 +47,6 @@ function validateEmail(email)  {
 }
 
 /**
-* Check if the property of new user are empty.
-* @param {object = {'email','password','firstname','familyname','gender','city','country'}
-* @returns {boolean} if any property is empty
-*/
-function notFieldBlank(user){
-    for( var property in user ){
-        if(user[property].length==0){
-            return false;
-        }
-        return true;
-    }
-}
-
-/**
 * Deleta all child of a node
 * @param {element} father of the element will be deleted
 */
