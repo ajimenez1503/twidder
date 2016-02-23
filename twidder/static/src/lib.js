@@ -3,20 +3,6 @@
 * @version 0.1
 */
 
-/*
-function httpPost(function_name,params){
-	var url="http://127.0.0.1:5000/"+function_name;
-	var xmlHttp =new XMLHttpRequest(); 
-    xmlHttp.onreadystatechange = function() { 
-		if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
-			return JSON.parse(xmlHttp.responseText);                   
-		}
-	}
-	xmlHttp.open("POST", url, true );
-	xmlHttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-	xmlHttp.send(params);
-}
-*/
 /**
 * show the error in a div with is block in this moment
 * @param {string}page of the view, 2 possibility profile or Welcome

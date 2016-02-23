@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Antonio'
+from geventwebsocket.handler import WebSocketHandler
+from gevent.pywsgi import WSGIServer
+from werkzeug.serving import run_with_reloader
 from flask import app, request
 from flask import Flask
 import database_helper
@@ -10,8 +13,13 @@ import re
 app = Flask(__name__, static_url_path='')
 app.debug = True
 
-list_token={}
+
+list_token_id={}
+list_conection={}
 min_size_password=4
+autologKey=None
+
+
 
 
 """
@@ -92,8 +100,8 @@ signed in user can use this method to retrieve all its own information from the 
 """
 @app.route('/getuserdatabytoken/<token>', methods=['GET'])
 def get_user_data_by_token(token = None):  
-	if token != None and list_token.has_key(token):
-		result = database_helper.get_user_data(list_token.get(token))
+	if token != None and list_token_id.has_key(token):
+		result = database_helper.get_user_data(list_token_id.get(token))
 		if result == 'user not found':
 			return return_json(404,False,result)
 		else:
@@ -109,8 +117,8 @@ def get_user_data_by_token(token = None):
 @app.route('/signout/<token>', methods=['GET'])
 def sign_out(token = None):
 	if token != None:
-		if list_token.has_key(token):
-			list_token.pop(token)
+		if list_token_id.has_key(token):
+			list_token_id.pop(token)
 			return return_json(200,True,'user disconnected')
 		else:
 			return return_json(404,False,'user not found')
@@ -125,10 +133,10 @@ def sign_out(token = None):
 @app.route('/changepassword', methods=['POST'])
 def change_password():
 	token = request.form['token']
-	if list_token.has_key(token):
+	if list_token_id.has_key(token):
 		password = request.form['password']
 		new_password = request.form['new_password']
-		result = database_helper.change_password(list_token.get(token),password,new_password)
+		result = database_helper.change_password(list_token_id.get(token),password,new_password)
 		if result == True:
 			return return_json(200,True,'password change')
 		else:
@@ -144,7 +152,7 @@ signed in user can use this method to retrieve all its own information from the 
 """
 @app.route('/getuserdatabyemail/<token>/<email>', methods=['GET'])
 def get_user_data_by_email(token = None, email=None):
-	if token != None and email!=None and list_token.has_key(token):
+	if token != None and email!=None and list_token_id.has_key(token):
 		result = database_helper.get_user_data_by_email(email)
 		if result == 'user not found':
 			return return_json(404,False,result)
@@ -161,8 +169,8 @@ currently signed in user can use this method to retrieve all its own messages fr
 """
 @app.route('/getmessagesbytoken/<token>', methods=['GET'])
 def get_messages_by_token(token = None):
-	if token != None and list_token.has_key(token):
-		result = database_helper.get_messages_by_token(list_token.get(token))
+	if token != None and list_token_id.has_key(token):
+		result = database_helper.get_messages_by_token(list_token_id.get(token))
 		if result == 'wrong email':
 			return return_json(404,False,result)
 		else:
@@ -177,7 +185,7 @@ def get_messages_by_token(token = None):
 """
 @app.route('/getmessagesbyemail/<token>/<email>', methods=['GET'])
 def get_messages_by_email(token = None,email=None):  
-	if token != None and email!=None and list_token.has_key(token):
+	if token != None and email!=None and list_token_id.has_key(token):
 		result = database_helper.get_messages_by_email(email)
 		if result == 'wrong email':
 			return return_json(404,False,result)
@@ -194,10 +202,10 @@ def get_messages_by_email(token = None,email=None):
 @app.route('/postmessage', methods=['POST'])
 def post_message():  
 	token = request.form['token']
-	if list_token.has_key(token):
+	if list_token_id.has_key(token):
 		message = request.form['message']
 		email = request.form['email']
-		result = database_helper.post_message(list_token.get(token),message,email)
+		result = database_helper.post_message(list_token_id.get(token),message,email)
 		if result == False:
 			return return_json(404,False,'unknown receiver')
 		else:
@@ -223,32 +231,89 @@ def return_json(code,success,message,data=None):
 	output['code']=code	
 	return json.dumps(output)
 
+
+
+
+
+
+"""
+	Definition:	connet the websocket, client and server. We store a dict with token and connection. 
+	We receive the token from the client size.
+    Keyword arguments: 
+
+"""
+@app.route('/connect')
+def connect():
+	#send message to client witht the token
+	if request.environ.get('wsgi.websocket'):
+		ws = request.environ['wsgi.websocket']
+		while True:
+			message_token = ws.receive()
+			if message_token!=None:			
+				global list_conection
+				list_conection[message_token]=ws
+
+
+"""
+	Definition:	auto-logOut. In the case the there are two time the same id on the server, 
+	the first clien have to disconect. Then we send a message to this l
+    Keyword arguments: id of the user
+"""
+def autologOut(id_user):
+	if id_user in list_token_id.values():
+		#delete
+		for key in list_token_id:
+			if id_user==list_token_id.get(key):		
+				#send message to client witht the token and delete on the list
+				if key in list_conection:
+					list_conection.pop(key).send("autoLogOut")
+					list_token_id.pop(key)
+				break	
+
+
 """
 	Definition:	Create a token for the user with the id given in parameter
     Keyword arguments: id of the user
 	Return: the token generated for the user
 """
 def create_token(id_user):
+	autologOut(id_user)
 	letters = 'abcdefghiklmnopqrstuvwwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 	token = "";
 	for i in range(0,36):
 		token += letters[random.randint(0, len(letters)-1)];
-	global list_token
-	list_token[token]=id_user
+	global list_token_id
+	list_token_id[token]=id_user
 	return token
 
+"""
+	Definition:	Check if the e-mail is valid
+    Keyword arguments: {String} email
+	Return: {boolean} if the e-mail is valid
+"""
 def validateEmail(email):	
 	if len(email) >= 5:
 		if re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{1,3}|[0-9]{1,3})(\\]?)$", email) != None:
 		    return True
 	return False
 
+
+"""
+	Definition:	Check if the e-mail and password are valid
+    Keyword arguments: {String} email and password
+	Return: {boolean} if the e-mail and password are valid
+"""
 def validate_signin(email,password):
 	result=validateEmail(email)
 	if len(password)<min_size_password:
 		result=False
 	return result
 
+"""
+	Definition:	Check if the date for signup is valid
+    Keyword arguments: {String} email,password,firstname,familyname,gender,city,country
+	Return: {boolean} if the date for signup is valid
+"""
 def validate_singup(email,password,firstname,familyname,gender,city,country):
 	result=validate_signin(email,password)
 	if len(firstname)<=0 or len(familyname)<=0 or len(city)<=0 or len(country)<=0:
@@ -257,8 +322,17 @@ def validate_singup(email,password,firstname,familyname,gender,city,country):
 		result=False
 	return result
 
+"""
+	Definition:	run the server
+    Keyword arguments: 
+	Return: 
+"""
+
+@run_with_reloader
+def run_server():	
+	http_server = WSGIServer(('',5000), app, handler_class=WebSocketHandler)
+	http_server.serve_forever()
+
 	
-
-
 if __name__ == '__main__':
-    app.run()
+    run_server()

@@ -5,6 +5,39 @@
 
 var minSizePassword=4; //global variable of size of password
 
+ 
+var connection = new WebSocket("ws://127.0.0.1:5000/connect");
+// When the connection is open, send some data to the server
+connection.onopen = function () {
+		if(localStorage.getItem("token") != null){
+      		connection.send(localStorage.getItem("token") ); // Send the message 'Ping' to the server
+   		}
+		
+};
+// Log errors
+connection.onerror = function (error) {
+	console.log('WebSocket Error ' + error);
+};
+// Log messages from the server
+connection.onmessage = function (e) {
+	//console.log('Server token: ' + e.data);
+	if("autoLogOut" == e.data){//log out
+		localStorage.removeItem("token"); 
+		location.reload();
+	}
+};
+
+//disconect websocket  when you close or reload the page
+window.onbeforeunload = function() {
+    connection.onclose = function () {}; // disable onclose handler first
+    connection.close();
+};
+
+
+
+
+
+
 /**
 * Display a view according to the token of the user.
 */
@@ -26,6 +59,7 @@ displayData = function(){
    if(localStorage.getItem("token") != null){
        dataProfile();
        getMessage();
+		
    }
 };
 
@@ -58,6 +92,7 @@ function login(){
 				if( output.success){
 					localStorage.setItem("token", output.data);
 				    location.reload();
+					
 				}else{
 					showErrorMessagesPage("Welcome","login",output.message,output.success);
 				}           
@@ -128,6 +163,7 @@ function signout(){
 		xmlHttp.send();	
     }
     location.reload();
+	localStorage.removeItem("token"); 
 }
 
 /**
