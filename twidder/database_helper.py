@@ -132,6 +132,22 @@ def post_message(id_user,message,toEmail):
 	return True
 
 """
+	Definition:	​increment the like of the user by email 
+    Keyword arguments: 	email of the user
+	Return: true if like was incremented, otherwise false
+"""
+def increment_like(email):
+	db=get_db()
+	db.execute('UPDATE profile SET nbLike = nbLike + 1 where email=?',(email,))
+	if db.total_changes<=0:
+		db.commit()
+		return False
+	else:
+		db.commit()
+		return True	
+
+
+"""
 	Definition:	​Retrieves the stored messages for the user specified by the passed email address.
     Keyword arguments: email adress of the user
 	Return: the message sent to the user or an error message
@@ -161,10 +177,56 @@ def get_messages_by_token(id_user):
 	return get_messages_by_email(toEmail)
 
 
+"""
+	Definition:	​Retrieves the number of  messages for the user specified by the passed email address.
+    Keyword arguments: email adress of the user
+	Return: the number message or an error message
+"""
+def get_number_messages_by_token(id_user):
+	db=get_db()
+	#get email from id_user
+	result=db.execute('select email from profile where id=?',(id_user,))
+	user=result.fetchone()
+	email= user[0];
+	result=db.execute('select COUNT(*) from message where toEmail=?',(email,))
+	number_message=result.fetchone()
+	if number_message is None:
+		return 0
+	else:
+		return number_message[0]
 
 
 
+"""
+	Definition:	​Retrieves the number of  likes for the user specified by the passed email address.
+    Keyword arguments: email adress of the user
+	Return: the number likes or an error message
+"""
+def get_number_likes_by_token(id_user):
+	db=get_db()
+	#get email from id_user
+	result=db.execute('select nbLike from profile where id=?',(id_user,))
+	user=result.fetchone()
+	nbLike= user[0]
+	if nbLike is None:
+		return 0
+	else:
+		return nbLike
 
 
 
+"""
+	Definition:	get the id of a user by the email
+    Keyword arguments: email adress of the user
+	Return: id or message error "wrong email"
+"""
+def get_id_by_email(email):
+	db=get_db()
+	result=db.execute('select id from profile where email=?',(email,))
+	user=result.fetchone()
+	user=user[0]
+	if user is None:
+		return 'wrong email'
+	else:
+		return user
 

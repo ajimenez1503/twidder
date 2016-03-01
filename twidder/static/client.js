@@ -4,7 +4,9 @@
 */
 
 var minSizePassword=4; //global variable of size of password
-
+var user_online=0;
+var number_likes=0;
+var number_messages=0;
  
 var connection = new WebSocket("ws://127.0.0.1:5000/connect");
 // When the connection is open, send some data to the server
@@ -18,12 +20,24 @@ connection.onopen = function () {
 connection.onerror = function (error) {
 	console.log('WebSocket Error ' + error);
 };
-// Log messages from the server
+// Log messages from the server. Structure message: JSON (command ,JSOM(data))
 connection.onmessage = function (e) {
+	var input=JSON.parse(e.data);
+	console.log(input);
+	
 	//console.log('Server token: ' + e.data);
-	if("autoLogOut" == e.data){//log out
+	if("autoLogOut" == input.command){//log out
 		localStorage.removeItem("token"); 
 		location.reload();
+	}else if("user_connect" == input.command){
+		user_online=JSON.parse(input.data)["user_connect"]
+		displayChart();
+    }else if("updateMessage" == input.command){
+		number_messages=JSON.parse(input.data)["number_message"]
+		displayChart();
+	}else if("updateLike" == input.command){
+		number_likes=JSON.parse(input.data)["number_like"]
+		displayChart();
 	}
 };
 
@@ -52,16 +66,51 @@ displayView = function(){
 
 
 /**
-* Display the data of the user in the tab home
+* Display the data of the user in the tab home: messages, data profile and chart
 */
 displayData = function(){
-   // the code required to display a view
-   if(localStorage.getItem("token") != null){
-       dataProfile();
-       getMessage();
+	// the code required to display a view
+	if(localStorage.getItem("token") != null){
+		dataProfile();
+		getMessage();
+		getNumberMessageAndLikes();
+
 		
-   }
+	}	
 };
+
+/**
+* update the like and message number and draw the chart
+*/
+function getNumberMessageAndLikes(){
+	//get number message and visit:
+		var output;
+		var url="http://127.0.0.1:5000/getnumbermessagesandLikesbytoken/"+localStorage.getItem("token"); 
+		var xmlHttp =new XMLHttpRequest();
+		xmlHttp.open("GET", url, true );
+		xmlHttp.send();	
+		xmlHttp.onreadystatechange = function() { 
+			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+				var output= JSON.parse(xmlHttp.responseText);  
+				if(output.success){
+					console.log(output.data);
+					data=JSON.parse(output.data);
+					console.log(data);  
+					if(typeof data.number_message==='number' && typeof data.number_like==='number'){
+						console.log("number messages"+data.number_message);
+						number_messages=data.number_message;
+						console.log("number likes"+data.number_like);
+						number_likes=data.number_like;
+						displayChart();
+					}else{
+						showErrorMessagesPage("Profile","Chart","wrong data",false);
+					}  		
+				}
+			}
+		}	
+
+}
+
 
 /**
 * Display the specific view when the page is reload
@@ -70,6 +119,30 @@ window.onload = function(){
     displayView();
     displayData();
 };
+ 
+ 
+/**
+* Display chart with the global variable
+*/
+function displayChart(){
+    var data = {
+        labels: ["Online", "Likes", "Messages"],
+        datasets: [
+            {
+                label: "Statistic",
+                fillColor: "rgba(220,220,220,0.5)",
+                strokeColor: "rgba(220,220,220,0.8)",
+                highlightFill: "rgba(220,220,220,0.75)",
+                highlightStroke: "rgba(220,220,220,1)",
+                data: [user_online,number_likes,number_messages]
+            }
+        ]
+    };
+    // Get the context of the canvas element we want to select
+    var ctx = document.getElementById("statistics_chart").getContext("2d");
+    var myBarChart = new Chart(ctx).Bar(data);
+};
+ 
 
 
 
@@ -152,7 +225,7 @@ console.log(user.firstname.length);
 
 }
 /**
-* signout he user
+* signout the user
 *remove the localStorage
 */
 function signout(){
@@ -334,7 +407,7 @@ function searchProfile(){
 						document.getElementById("browseDataUser").style.display="block";
 						dataProfile(email);
 					   	getMessage(email);
-
+						restar_drag_drop();
 					}else{
 						showErrorMessagesPage("Profile","search profile",output.message,output.success);
 						//show div of data and message
@@ -349,6 +422,65 @@ function searchProfile(){
         document.getElementById("browseDataUser").style.display="none";//show div of data and message
     }
 
+}
+
+
+
+/**
+* incrementLike on the database
+*
+*/
+function incrementLike(){
+		var email=document.getElementById("searchProfile").value;
+		if(email.length>0 && email.length<200 && validateEmail(email)){
+				var url="http://127.0.0.1:5000/incrementLike";
+				var xmlHttp =new XMLHttpRequest(); 
+				xmlHttp.onreadystatechange = function() { 
+					if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+						var output= JSON.parse(xmlHttp.responseText); 
+						if(!output.success){
+							showErrorMessagesPage("Browse","Like",output.message,output.success);
+							//hide div of data and message
+							document.getElementById("browseDataUser").style.display="none";
+					
+						}
+					}
+				}
+				xmlHttp.open("POST", url, true );
+				xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				var params = "email="+email;
+				xmlHttp.send(params);		
+		}else{
+		    showErrorMessagesPage("Profile","search profile","email not valid",false);
+		    document.getElementById("browseDataUser").style.display="none";//hide div of data and message
+    	}	
+}
+
+
+/**
+*Implemebtation of drag and drop)
+*/
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+    ev.preventDefault();
+	console.log("I left it");
+    var data = ev.dataTransfer.getData("text");
+    ev.target.appendChild(document.getElementById(data));
+	incrementLike();
+	drag1.draggable = "false";
+}
+//restar the position of the drag
+function restar_drag_drop(){
+	var drag1 = document.getElementById('drag1');
+	drag1.draggable = "true";
+	document.getElementById('Display_thumb').appendChild(drag1);
 }
 
 /**

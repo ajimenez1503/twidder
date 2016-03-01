@@ -88,7 +88,7 @@ def sign_up():
 		if result == True:
 			return return_json(200,True,'User added')
 		else:	
-			return return_json(400,False,'email already used')
+			return return_json(400,False,'sign up fail')
 	else:
 		return return_json(400,False,'wrongg inputs')
 
@@ -120,6 +120,7 @@ def sign_out(token = None):
 		if list_token_id.has_key(token):
 			list_token_id.pop(token)
 			list_conection.pop(token)
+			get_user_connet()
 			return return_json(200,True,'user disconnected')
 		else:
 			return return_json(404,False,'user not found')
@@ -210,14 +211,108 @@ def post_message():
 		if result == False:
 			return return_json(404,False,'unknown receiver')
 		else:
+			updateMessages(email)
 			return return_json(200,True,'message sent')
 	else:
 		return return_json(403,False,'user not connect')
 	
+
+
+"""
+	Definition:	return the number of messages of the user by token
+    Keyword arguments: -
+	Return: estul with the json or an error message
+"""
+@app.route('/getnumbermessagesbytoken/<token>', methods=['GET'])
+def get_number_messages_by_token(token = None):
+	if token != None and list_token_id.has_key(token):
+		result = database_helper.get_number_messages_by_token(list_token_id.get(token))
+		return return_json(200,True,'number of message sent',result)
+	else:
+		return return_json(403,False,'user not connected')
+
+
+
+"""
+	Definition:	return the number of messages and likes of the user by token
+    Keyword arguments: -
+	Return: restul with the json or an error message
+"""
+@app.route('/getnumbermessagesandLikesbytoken/<token>', methods=['GET'])
+def get_number_messages_and_likes_by_token(token = None):
+	if token != None and list_token_id.has_key(token):
+		result = {}  
+		result['number_message']=database_helper.get_number_messages_by_token(list_token_id.get(token))
+		result['number_like']=database_helper.get_number_likes_by_token(list_token_id.get(token))
+		return return_json(200,True,'number of message sent',json.dumps(result))
+	else:
+		return return_json(403,False,'user not connected')
+
+
+"""
+	Definition:	​increment the like in the databse
+    Keyword arguments: -
+	Return: message to know if it's a success or a fail
+"""
+@app.route('/incrementLike', methods=['POST'])
+def increment_like():  
+	email = request.form['email']
+	result = database_helper.increment_like(email)
+	if result == False:
+		return return_json(404,False,'unknown receiver')
+	else:
+		updateLikes(email)
+		return return_json(200,True,'Like sent')	
+
+
 	
 	
 
 ######################################################
+"""
+    Definition: send a message to the client by websocket with the mumber of messages
+    Keyword arguments: -
+    Return: 
+"""
+def updateMessages(email):
+	id_user = database_helper.get_id_by_email(email)
+	if id_user != 'wrong email':
+		if id_user in list_token_id.values():
+			for token in list_token_id:
+				if id_user==list_token_id.get(token) and token in list_conection:
+						result = {}  
+						result['number_message']=database_helper.get_number_messages_by_token(id_user)
+						list_conection.get(token).send(create_message("updateMessage",json.dumps(result)))
+						break	
+
+"""
+    Definition: send a message to the client by websocket with the mumber of likes
+    Keyword arguments: -
+    Return: 
+"""
+def updateLikes(email):
+	id_user = database_helper.get_id_by_email(email)
+	if id_user != 'wrong email':
+		if id_user in list_token_id.values():
+			for token in list_token_id:
+				if id_user==list_token_id.get(token) and token in list_conection:
+						result = {}  
+						result['number_like']=database_helper.get_number_likes_by_token(id_user)
+						list_conection.get(token).send(create_message("updateLike",json.dumps(result)))
+						break	
+"""
+    Definition: get user connet on the system
+    Keyword arguments: -
+    Return: data: user conenect send to clien by websocket
+"""
+def get_user_connet():  
+    user_connect=len(list_token_id);
+    result = {}  
+    result['user_connect']=user_connect;
+    for ws in list_conection.values():
+        ws.send(create_message("user_connect",json.dumps(result)))
+
+
 """
 	Definition:	return a json object with code http,success (bool),message (string), data (json object)
     Keyword arguments: 
@@ -232,16 +327,23 @@ def return_json(code,success,message,data=None):
 	output['code']=code	
 	return json.dumps(output)
 
-
-
-
+"""
+	Definition:	return a json object with command data (json object)
+    Keyword arguments: 
+		command, data (json object)
+	Return: the json object
+"""
+def create_message(command,data=None):
+	output = {}  
+	output['command']=command
+	output['data']=data	
+	return json.dumps(output)
 
 
 """
 	Definition:	connet the websocket, client and server. We store a dict with token and connection. 
 	We receive the token from the client size.
     Keyword arguments: 
-
 """
 @app.route('/connect')
 def connect():
@@ -253,6 +355,7 @@ def connect():
 			if message_token!=None:			
 				global list_conection
 				list_conection[message_token]=ws
+				get_user_connet()
 
 
 """
@@ -262,12 +365,11 @@ def connect():
 """
 def autologOut(id_user):
 	if id_user in list_token_id.values():
-		#delete
 		for key in list_token_id:
 			if id_user==list_token_id.get(key):		
 				#send message to client witht the token and delete on the list
 				if key in list_conection:
-					list_conection.pop(key).send("autoLogOut")
+					list_conection.pop(key).send(create_message("autoLogOut"))#delete
 					list_token_id.pop(key)
 				break	
 
@@ -328,7 +430,6 @@ def validate_singup(email,password,firstname,familyname,gender,city,country):
     Keyword arguments: 
 	Return: 
 """
-
 @run_with_reloader
 def run_server():	
 	http_server = WSGIServer(('',5000), app, handler_class=WebSocketHandler)

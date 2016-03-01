@@ -9,6 +9,7 @@
         <link href="client.css" type="text/css" rel="stylesheet">
         <script src="src/lib.js" type="text/javascript"></script>
         <script src="client.js" type="text/javascript"></script>
+		<script src="src/Chart.js"></script>
     </head>
     <body id="viewBase">
     </body>
@@ -92,7 +93,11 @@
                             <button id="SendMessage" onClick="sendMessagetoMe()" type="button">Send</button>
 							<button onClick="reloadMessage()" type="button">Reload</button>
                         </div>
-
+                    </div>
+					<div id="Display_chart">
+                        <div id="Display_chart_Frame">
+                            <canvas id="statistics_chart" width="260"></canvas>
+                        </div>
                     </div>
                 </div>
 			</div>
@@ -120,8 +125,13 @@
                             <button id="SendMessageBrowse" onClick="sendMessagetoOther()" type="button" disabled="disabled">Send</button>
 							<button onClick="searchProfile()" type="button">Reload</button>
                         </div>
-
                     </div>
+					<div id="Display_chart_container">
+						<div id="Display_thumb">
+							<div id="dropper" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <br>
+							<img id="drag1" src="img/thumpUp.png" draggable="true" ondragstart="drag(event)" >
+						</div>
+					</div>
                 </div>
 			</div>
 			<div id="account">

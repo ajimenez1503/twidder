@@ -8,7 +8,8 @@ create table profile (
  	familyName VARCHAR(100) not null,
 	gender VARCHAR(100) not null,
 	city VARCHAR(100) not null,
-	country VARCHAR(100) not null
+	country VARCHAR(100) not null,
+	nbLike integer not null DEFAULT 0
 );
 
 drop table if exists message;
