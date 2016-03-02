@@ -40,8 +40,10 @@ displayView = function(){
    // the code required to display a view
    if(localStorage.getItem("token") === null){
        document.getElementById("viewBase").innerHTML = document.getElementById("welcomeview").innerHTML;
+		manageHistory("connection");
    }else{
        document.getElementById("viewBase").innerHTML = document.getElementById("profileview").innerHTML;
+		manageHistory("home");
    }
 };
 
@@ -110,7 +112,6 @@ function signup(){
           'country': document.getElementById("signupCountry").value,
         };
         if(user.firstname.length==0){showErrorMessagesPage("Welcome","signup","First name field empty",false);return;}
-console.log(user.firstname.length);
 		if(user.familyname.length==0){showErrorMessagesPage("Welcome","signup","Last name field empty",false);return;}
 		if(user.city.length==0){showErrorMessagesPage("Welcome","signup","City field empty",false);return;}
 		if(user.country.length==0){showErrorMessagesPage("Welcome","signup","Country field empty",false);return;}
@@ -381,13 +382,9 @@ function getNumberMessageAndLikes(){
 			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
 				var output= JSON.parse(xmlHttp.responseText);  
 				if(output.success){
-					console.log(output.data);
 					data=JSON.parse(output.data);
-					console.log(data);  
 					if(typeof data.number_message==='number' && typeof data.number_like==='number'){
-						console.log("number messages"+data.number_message);
 						number_messages=data.number_message;
-						console.log("number likes"+data.number_like);
 						number_likes=data.number_like;
 						displayChart();
 					}else{
@@ -411,28 +408,69 @@ function reloadMessage(){
 /**
 * On the view profle there are 3 tab: home account browse. The argument tab will be display.
 *The block for show erro will hidden
+*create the history
 * @param {string} the name of the tab
 */
 function changeTab(tab){
+    var stateObj;
     if(typeof(tab) === 'string') {
         document.getElementById("showErrorMessageProfilePage").style.display="none";
-        if(tab=="home"){
+        if(tab=="home" && document.getElementById("home").style.display!="block"){
             document.getElementById("home").style.display="block";
             document.getElementById("browse").style.display="none";
             document.getElementById("account").style.display="none";
             dataProfile();
             getMessage();
-        }else if(tab=="browse"){
+            manageHistory("home");
+        }else if(tab=="browse" && document.getElementById("browse").style.display!="block"){
             document.getElementById("home").style.display="none";
             document.getElementById("browse").style.display="block";
             document.getElementById("account").style.display="none";
-        }else if(tab=="account"){
+            manageHistory("browse");
+        }else if(tab=="account" && document.getElementById("account").style.display!="block"){
             document.getElementById("home").style.display="none";
             document.getElementById("browse").style.display="none";
             document.getElementById("account").style.display="block";
+            manageHistory("account");
         }
     }
+ 
 }
+ 
+
+////////////////////////////////////////////////////////////////
+/*
+*CONTROL HISTORY
+*/
+////////////////////////////////////////////////////////////////
+function manageHistory(tabName){
+        stateObj= { tab: tabName };
+        history.pushState(stateObj, tabName, "");
+}
+ 
+ 
+// Revert to a previously saved state
+window.addEventListener('popstate', function(event) {
+	if(localStorage.getItem("token") != null){
+		if(event.state.tab=="home"&& document.getElementById("home").style.display!="block" ){
+		    document.getElementById("home").style.display="block";
+		    document.getElementById("browse").style.display="none";
+		    document.getElementById("account").style.display="none";
+		    dataProfile();
+		    getMessage();   
+		}else if(event.state.tab=="browse" && document.getElementById("browse").style.display!="block"){
+		    document.getElementById("home").style.display="none";
+		    document.getElementById("browse").style.display="block";
+		    document.getElementById("account").style.display="none";
+		}else if(event.state.tab=="account" && document.getElementById("account").style.display!="block"){
+		    document.getElementById("home").style.display="none";
+		    document.getElementById("browse").style.display="none";
+		    document.getElementById("account").style.display="block";
+		}else if(event.state.tab=="connection"){
+		    signout();
+		}
+	}
+});
 
 
 
@@ -458,12 +496,15 @@ window.onbeforeunload = function() {
 */
 function open_websocket(){
 	if(localStorage.getItem("token") != null){
+		if(connection!=null){//Still in CONNECTING state
+			connection.close();
+			connection=null;
+		}
        	connection = new WebSocket("ws://127.0.0.1:5000/connect");
 		connection.onopen = function () {
-		if(localStorage.getItem("token") != null){
-      		connection.send(localStorage.getItem("token") ); // Send the message 'Ping' to the server
-   		}
-		
+			if(localStorage.getItem("token") != null){
+		  		connection.send(localStorage.getItem("token") ); // Send the message 'Ping' to the server
+	   		}
 		};
 		// Log errors
 		connection.onerror = function (error) {
@@ -472,8 +513,6 @@ function open_websocket(){
 		// Log messages from the server. Structure message: JSON (command ,JSOM(data))
 		connection.onmessage = function (e) {
 			var input=JSON.parse(e.data);
-			console.log(input);
-			//console.log('Server token: ' + e.data);
 			if("autoLogOut" == input.command){//log out
 				deleteTokenAndCloseWebsocket();
 				reloadPage();
@@ -490,7 +529,10 @@ function open_websocket(){
 			}
 		};
 		connection.onclose = function () {
-			connection.close();
+			if(connection!=null){
+				connection.close();
+				connection=null;
+			}
 		};
     		
 	}
@@ -502,6 +544,7 @@ function deleteTokenAndCloseWebsocket(){
 	localStorage.removeItem("token"); //delete token and close websocket
 	if(connection!=null){
 		connection.close(); 
+		connection=null;
 	}
 }
 ////////////////////////////////////////////////////////////////
