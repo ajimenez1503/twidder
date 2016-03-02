@@ -1,11 +1,13 @@
+# -*- coding: utf-8 -*-
 __author__ = 'Antonio'
 import sqlite3
+#import hashlib
 from flask import g
 from contextlib import closing
 
 
 
-DATABASE = '/home/antji996/Desktop/web/test/test2/database.db'
+DATABASE = '/home/antji996/Desktop/web/test/twidder/twidder/database.db'
 
 def get_db():
     db = getattr(g, DATABASE, None)
@@ -28,22 +30,33 @@ def close_db():
 						password of the user
 	Return: Message about the succes or the fail
 """
-def sign_in(email,password):
+def sign_in(email,password,bcrypt):
 	db=get_db()
-	result=db.execute('select id from profile where email=? and password=?',(email,password))
-	user=result.fetchone()
-	if user is None:
-		return 'user not found'
+	#check if the pasword are the same
+	result=db.execute('select password from profile where email=?',(email,))
+	pw_hash=result.fetchone()
+	if pw_hash is None:
+		return 'connection failed'
 	else:
-		return user[0]
+		pw_hash=pw_hash[0]
+		if bcrypt.check_password_hash(pw_hash, password):
+			result=db.execute('select id from profile where email=?',(email,))
+			user=result.fetchone()
+			if user is None:
+				return 'connection failed'
+			else:
+				return user[0]
+		else:
+			return 'connection failed'
 		
 """
 	Definition:	​Registers a user in the database.
     Keyword arguments: all the inforormations about the user
 	Return: true if the user is add in the database, otherwise false
 """
-def sign_up(email,password,firstname,familyname,gender,city,country):
+def sign_up(email,password,firstname,familyname,gender,city,country,bcrypt):
 	db=get_db()
+	password=bcrypt.generate_password_hash(password)
 	try:
 		db.execute('insert into profile (email,password,firstname, familyname,gender,city,country) values (?,?,?,?,?,?,?)',(email,password,firstname, familyname,gender,city,country))
 	except Exception as e:
@@ -86,15 +99,28 @@ def get_user_data_by_email(email):
 						new password of the user
 	Return: message to know if it's a success or a fail
 """
-def change_password(id_user,password,new_password):
+def change_password(id_user,password,new_password,bcrypt):
 	db=get_db()
-	db.execute('update profile set password=? where  id=? and password=?',(new_password,id_user,password))
-	if db.total_changes<=0:
-		db.commit()
+
+	#check if the passwords are the same
+	result=db.execute('select password from profile where id=?',(id_user,))
+	pw_hash=result.fetchone()
+	if pw_hash is None:
 		return False
 	else:
-		db.commit()
-		return True
+		pw_hash=pw_hash[0]
+		if bcrypt.check_password_hash(pw_hash, password):
+			new_password=bcrypt.generate_password_hash(new_password)
+			db.execute('update profile set password=? where  id=?',(new_password,id_user))
+			if db.total_changes<=0:
+				db.commit()
+				return False
+			else:
+				db.commit()
+				return True
+		else:
+			return False
+
 
 """
 	Definition:	​Add the message send to the database
@@ -122,6 +148,22 @@ def post_message(id_user,message,toEmail):
 	return True
 
 """
+	Definition:	​increment the like of the user by email 
+    Keyword arguments: 	email of the user
+	Return: true if like was incremented, otherwise false
+"""
+def increment_like(email):
+	db=get_db()
+	db.execute('UPDATE profile SET nbLike = nbLike + 1 where email=?',(email,))
+	if db.total_changes<=0:
+		db.commit()
+		return False
+	else:
+		db.commit()
+		return True	
+
+
+"""
 	Definition:	​Retrieves the stored messages for the user specified by the passed email address.
     Keyword arguments: email adress of the user
 	Return: the message sent to the user or an error message
@@ -132,7 +174,7 @@ def get_messages_by_email(email):
 	result=db.execute('select id from profile where email=?',(email,))
 	user=result.fetchone()
 	if user is None:
-		return 'email is wrong'
+		return 'wrong email'
 	result=db.execute('select fromEmail,message from message where toEmail=?',(email,))
 	messages = [dict(fromEmail=row[0], message=row[1])for row in result.fetchall()]
 	return messages
@@ -151,10 +193,56 @@ def get_messages_by_token(id_user):
 	return get_messages_by_email(toEmail)
 
 
+"""
+	Definition:	​Retrieves the number of  messages for the user specified by the passed email address.
+    Keyword arguments: email adress of the user
+	Return: the number message or an error message
+"""
+def get_number_messages_by_token(id_user):
+	db=get_db()
+	#get email from id_user
+	result=db.execute('select email from profile where id=?',(id_user,))
+	user=result.fetchone()
+	email= user[0];
+	result=db.execute('select COUNT(*) from message where toEmail=?',(email,))
+	number_message=result.fetchone()
+	if number_message is None:
+		return 0
+	else:
+		return number_message[0]
 
 
 
+"""
+	Definition:	​Retrieves the number of  likes for the user specified by the passed email address.
+    Keyword arguments: email adress of the user
+	Return: the number likes or an error message
+"""
+def get_number_likes_by_token(id_user):
+	db=get_db()
+	#get email from id_user
+	result=db.execute('select nbLike from profile where id=?',(id_user,))
+	user=result.fetchone()
+	nbLike= user[0]
+	if nbLike is None:
+		return 0
+	else:
+		return nbLike
 
 
 
+"""
+	Definition:	get the id of a user by the email
+    Keyword arguments: email adress of the user
+	Return: id or message error "wrong email"
+"""
+def get_id_by_email(email):
+	db=get_db()
+	result=db.execute('select id from profile where email=?',(email,))
+	user=result.fetchone()
+	user=user[0]
+	if user is None:
+		return 'wrong email'
+	else:
+		return user
 

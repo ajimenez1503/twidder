@@ -103,7 +103,7 @@ body  {
 /*profile*/
 #home{
 	width:750px;
-    height: 400px;
+    height: 450px;
 	margin-left: auto;
     margin-right: auto;
     margin-top: 10px;
@@ -121,7 +121,7 @@ body  {
 }
 #account{
 	width:750px;
-    height: 400px;
+    height: 450px;
 	margin-left: auto;
     margin-right: auto;
     margin-top: 10px;
@@ -166,6 +166,46 @@ body  {
 	text-align: center;
 	font-size: larger;
 	font-weight: bolder;
+}
+
+#Display_chart{
+    padding-bottom: 15px;
+    padding-top: 20px;
+    width: 270px;
+    padding-left: 31px;
+    float : left;
+}
+#Display_chart_Frame{
+    background-color: rgb(65, 215, 164);
+    border: 1px solid black;
+    padding-left: 10px;
+    padding-bottom: 20px;
+ 
+}
+#drag1{
+width:80px;
+height:80px;
+margin-right:50px;
+}
+
+#Display_chart_container{
+    padding-bottom: 15px;
+    padding-top: 20px;
+    width: 270px;
+    padding-left: 51px;
+    float: left;
+}
+#Display_thumb{
+	display: inline-flex;
+    border: 1px solid black;
+    border: none;
+}
+
+#dropper {
+width:60px;
+height:60px;
+padding:10px;
+border:1px solid #aaaaaa;
 }
 
 #mymessage{
