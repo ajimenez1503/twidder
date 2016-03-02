@@ -4,52 +4,33 @@
 */
 
 var minSizePassword=4; //global variable of size of password
-var user_online=0;
-var number_likes=0;
-var number_messages=0;
- 
-var connection = new WebSocket("ws://127.0.0.1:5000/connect");
-// When the connection is open, send some data to the server
-connection.onopen = function () {
-		if(localStorage.getItem("token") != null){
-      		connection.send(localStorage.getItem("token") ); // Send the message 'Ping' to the server
-   		}
-		
+var user_online=0;//global variable of user online for the chart
+var number_likes=0;//global variable of number of likes of the user for the chart
+var number_messages=0;//global variable of number of messages of the user for the chart
+var connection;
+
+////////////////////////////////////////////////////////////////
+/*
+*LOAD VIEWS
+*/
+////////////////////////////////////////////////////////////////
+/**
+* Display the specific view when the page is reload
+*/
+window.onload = function(){
+    displayView();
+    displayData();
 };
-// Log errors
-connection.onerror = function (error) {
-	console.log('WebSocket Error ' + error);
-};
-// Log messages from the server. Structure message: JSON (command ,JSOM(data))
-connection.onmessage = function (e) {
-	var input=JSON.parse(e.data);
-	console.log(input);
+
+/**
+* Display the specific view without reload the page
+*/
+reloadPage = function(){
+    displayView();
+    displayData();
+	open_websocket();
 	
-	//console.log('Server token: ' + e.data);
-	if("autoLogOut" == input.command){//log out
-		localStorage.removeItem("token"); 
-		location.reload();
-	}else if("user_connect" == input.command){
-		user_online=JSON.parse(input.data)["user_connect"]
-		displayChart();
-    }else if("updateMessage" == input.command){
-		number_messages=JSON.parse(input.data)["number_message"]
-		displayChart();
-	}else if("updateLike" == input.command){
-		number_likes=JSON.parse(input.data)["number_like"]
-		displayChart();
-	}
 };
-
-//disconect websocket  when you close or reload the page
-window.onbeforeunload = function() {
-    connection.onclose = function () {}; // disable onclose handler first
-    connection.close();
-};
-
-
-
-
 
 
 /**
@@ -74,78 +55,8 @@ displayData = function(){
 		dataProfile();
 		getMessage();
 		getNumberMessageAndLikes();
-
-		
 	}	
 };
-
-/**
-* update the like and message number and draw the chart
-*/
-function getNumberMessageAndLikes(){
-	//get number message and visit:
-		var output;
-		var url="http://127.0.0.1:5000/getnumbermessagesandLikesbytoken/"+localStorage.getItem("token"); 
-		var xmlHttp =new XMLHttpRequest();
-		xmlHttp.open("GET", url, true );
-		xmlHttp.send();	
-		xmlHttp.onreadystatechange = function() { 
-			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
-				var output= JSON.parse(xmlHttp.responseText);  
-				if(output.success){
-					console.log(output.data);
-					data=JSON.parse(output.data);
-					console.log(data);  
-					if(typeof data.number_message==='number' && typeof data.number_like==='number'){
-						console.log("number messages"+data.number_message);
-						number_messages=data.number_message;
-						console.log("number likes"+data.number_like);
-						number_likes=data.number_like;
-						displayChart();
-					}else{
-						showErrorMessagesPage("Profile","Chart","wrong data",false);
-					}  		
-				}
-			}
-		}	
-
-}
-
-
-/**
-* Display the specific view when the page is reload
-*/
-window.onload = function(){
-    displayView();
-    displayData();
-};
- 
- 
-/**
-* Display chart with the global variable
-*/
-function displayChart(){
-    var data = {
-        labels: ["Online", "Likes", "Messages"],
-        datasets: [
-            {
-                label: "Statistic",
-                fillColor: "rgba(220,220,220,0.5)",
-                strokeColor: "rgba(220,220,220,0.8)",
-                highlightFill: "rgba(220,220,220,0.75)",
-                highlightStroke: "rgba(220,220,220,1)",
-                data: [user_online,number_likes,number_messages]
-            }
-        ]
-    };
-    // Get the context of the canvas element we want to select
-    var ctx = document.getElementById("statistics_chart").getContext("2d");
-    var myBarChart = new Chart(ctx).Bar(data);
-};
- 
-
-
-
 
 
 /**
@@ -164,8 +75,8 @@ function login(){
 				var output= JSON.parse(xmlHttp.responseText);        
 				if( output.success){
 					localStorage.setItem("token", output.data);
-				    location.reload();
-					
+				    //location.reload();
+					reloadPage();
 				}else{
 					showErrorMessagesPage("Welcome","login",output.message,output.success);
 				}           
@@ -241,9 +152,10 @@ function signout(){
 		xmlHttp.open("GET", url, true );
 		xmlHttp.send();	
     }
-    location.reload();
-	localStorage.removeItem("token"); 
+	deleteTokenAndCloseWebsocket();
+	reloadPage();
 }
+
 
 /**
 * Change the pasword.
@@ -320,7 +232,6 @@ function dataProfile(email){
 */
 function sendMessagetoMe(){
     var message=document.getElementById("writeMessage").value;//read message
-    //TODO validate message without javascript
     if(message.length>0 && message.length<200){
 		//take the profile for take the own email
 		var xmlHttp =new XMLHttpRequest();
@@ -456,32 +367,38 @@ function incrementLike(){
     	}	
 }
 
-
 /**
-*Implemebtation of drag and drop)
+* update the like and message number and draw the chart
 */
-function allowDrop(ev) {
-    ev.preventDefault();
+function getNumberMessageAndLikes(){
+	//get number message and visit:
+		var output;
+		var url="http://127.0.0.1:5000/getnumbermessagesandLikesbytoken/"+localStorage.getItem("token"); 
+		var xmlHttp =new XMLHttpRequest();
+		xmlHttp.open("GET", url, true );
+		xmlHttp.send();	
+		xmlHttp.onreadystatechange = function() { 
+			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+				var output= JSON.parse(xmlHttp.responseText);  
+				if(output.success){
+					console.log(output.data);
+					data=JSON.parse(output.data);
+					console.log(data);  
+					if(typeof data.number_message==='number' && typeof data.number_like==='number'){
+						console.log("number messages"+data.number_message);
+						number_messages=data.number_message;
+						console.log("number likes"+data.number_like);
+						number_likes=data.number_like;
+						displayChart();
+					}else{
+						showErrorMessagesPage("Profile","Chart","wrong data",false);
+					}  		
+				}
+			}
+		}	
 }
 
-function drag(ev) {
-    ev.dataTransfer.setData("text", ev.target.id);
-}
 
-function drop(ev) {
-    ev.preventDefault();
-	console.log("I left it");
-    var data = ev.dataTransfer.getData("text");
-    ev.target.appendChild(document.getElementById(data));
-	incrementLike();
-	drag1.draggable = "false";
-}
-//restar the position of the drag
-function restar_drag_drop(){
-	var drag1 = document.getElementById('drag1');
-	drag1.draggable = "true";
-	document.getElementById('Display_thumb').appendChild(drag1);
-}
 
 /**
 * update the list of message
@@ -516,3 +433,102 @@ function changeTab(tab){
         }
     }
 }
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////
+/*
+*WEBSOCKET
+*/
+////////////////////////////////////////////////////////////////
+//disconect websocket  when you close or reload the page
+window.onbeforeunload = function() {
+    connection.onclose = function () {}; // disable onclose handler first
+    if(connection!=null){
+		connection.close(); 
+	}
+};
+
+/**
+*open websocket and define all the funtionality
+*/
+function open_websocket(){
+	if(localStorage.getItem("token") != null){
+       	connection = new WebSocket("ws://127.0.0.1:5000/connect");
+		connection.onopen = function () {
+		if(localStorage.getItem("token") != null){
+      		connection.send(localStorage.getItem("token") ); // Send the message 'Ping' to the server
+   		}
+		
+		};
+		// Log errors
+		connection.onerror = function (error) {
+			console.log('WebSocket Error ' + error);
+		};
+		// Log messages from the server. Structure message: JSON (command ,JSOM(data))
+		connection.onmessage = function (e) {
+			var input=JSON.parse(e.data);
+			console.log(input);
+			//console.log('Server token: ' + e.data);
+			if("autoLogOut" == input.command){//log out
+				deleteTokenAndCloseWebsocket();
+				reloadPage();
+			reloadPage();
+			}else if("user_connect" == input.command){
+				user_online=JSON.parse(input.data)["user_connect"]
+				displayChart();
+			}else if("updateMessage" == input.command){
+				number_messages=JSON.parse(input.data)["number_message"]
+				displayChart();
+			}else if("updateLike" == input.command){
+				number_likes=JSON.parse(input.data)["number_like"]
+				displayChart();
+			}
+		};
+		connection.onclose = function () {
+			connection.close();
+		};
+    		
+	}
+}
+/*
+*delete token and close socket if is existed
+*/
+function deleteTokenAndCloseWebsocket(){
+	localStorage.removeItem("token"); //delete token and close websocket
+	if(connection!=null){
+		connection.close(); 
+	}
+}
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////
+/**
+* Display chart with the global variable
+*/
+////////////////////////////////////////////////////////////////
+function displayChart(){
+    var data = {
+        labels: ["Online", "Likes", "Messages"],
+        datasets: [
+            {
+                label: "Statistic",
+                fillColor: "rgba(220,220,220,0.5)",
+                strokeColor: "rgba(220,220,220,0.8)",
+                highlightFill: "rgba(220,220,220,0.75)",
+                highlightStroke: "rgba(220,220,220,1)",
+                data: [user_online,number_likes,number_messages]
+            }
+        ]
+    };
+    // Get the context of the canvas element we want to select
+    var ctx = document.getElementById("statistics_chart").getContext("2d");
+    var myBarChart = new Chart(ctx).Bar(data);
+};
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////

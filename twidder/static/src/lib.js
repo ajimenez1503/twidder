@@ -99,3 +99,34 @@ function sendMessage(message,email,toOther){
 		var params = "email="+email+"&message="+message+"&token="+localStorage.getItem("token");
 		xmlHttp.send(params);		
 }
+
+
+////////////////////////////////////////////////////////////////
+/**
+*Implemebtation of drag and drop)
+*/
+////////////////////////////////////////////////////////////////
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+    ev.preventDefault();
+	console.log("I left it");
+    var data = ev.dataTransfer.getData("text");
+    ev.target.appendChild(document.getElementById(data));
+	incrementLike();
+	drag1.draggable = "false";
+}
+//restar the position of the drag
+function restar_drag_drop(){
+	var drag1 = document.getElementById('drag1');
+	drag1.draggable = "true";
+	document.getElementById('Display_thumb').appendChild(drag1);
+}
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////

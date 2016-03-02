@@ -128,8 +128,8 @@
                     </div>
 					<div id="Display_chart_container">
 						<div id="Display_thumb">
-							<img id="drag1" src="img/thumpUp.png" draggable="true" ondragstart="drag(event)">									
 							<div id="dropper" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <br>
+							<img id="drag1" src="img/thumpUp.png" draggable="true" ondragstart="drag(event)" >
 						</div>
 					</div>
                 </div>
