@@ -23,8 +23,8 @@ function showErrorMessagesPage(page,element,message,success){
 
 		//if we are at profile and change password, delete margin_top
 		//specific case
-		if(page=="Profile" && element=="changePassword"){
-			document.getElementById("showErrorMessage"+page+"Page").style.margin-top="0px";
+		if(page=="Profile" && (element=="changePassword" || element=="Upload_file")){
+			document.getElementById("showErrorMessage"+page+"Page").style.marginTop="0px";
 		}
 
         document.getElementById("errorMessage"+page+"Page").innerHTML=element+" : "+message;

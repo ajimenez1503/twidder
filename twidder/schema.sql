@@ -9,7 +9,10 @@ create table profile (
 	gender VARCHAR(100) not null,
 	city VARCHAR(100) not null,
 	country VARCHAR(100) not null,
-	nbLike integer not null DEFAULT 0
+	nbLike integer not null DEFAULT 0,
+	image varchar(100) DEFAULT '',
+	audio varchar(100) DEFAULT '',
+	video varchar(100) DEFAULT ''
 );
 
 drop table if exists message;

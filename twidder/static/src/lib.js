@@ -20,13 +20,13 @@ function showErrorMessagesPage(page,element,message,success){
         else{
             document.getElementById("showErrorMessage"+page+"Page").className="alert alert-danger";
         }
-
+		/*
 		//if we are at profile and change password, delete margin_top
 		//specific case
-		if(page=="Profile" && element=="changePassword"){
+		if(page=="Profile" && (element=="changePassword" || element=="Upload_file")){
 			document.getElementById("showErrorMessage"+page+"Page").style.marginTop="0px";
 		}
-
+		*/
         document.getElementById("errorMessage"+page+"Page").innerHTML=element+" : "+message;
         return true;
     }else{

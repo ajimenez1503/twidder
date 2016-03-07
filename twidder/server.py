@@ -12,11 +12,19 @@ import random
 import re
 
 
+from flask import send_from_directory
+import os
+from flask import redirect, url_for
+from werkzeug import secure_filename
+
+
+
 app = Flask(__name__, static_url_path='')
 bcrypt = Bcrypt(app)
 app.debug = True
 
-
+UPLOAD_FOLDER = '/home/antji996/Desktop/web/test/twidder/twidder/uploads'
+ALLOWED_EXTENSIONS = set(['gif', 'mp4', 'png', 'jpg', 'jpeg', 'ogg'])
 list_token_id={}
 list_conection={}
 min_size_password=4
@@ -268,10 +276,77 @@ def increment_like():
 		return return_json(200,True,'Like sent')	
 
 
-	
+"""
+	Definition:	​save a file at disk
+    Keyword arguments: -
+	Return: message to know if it's a success or a fail
+"""
+@app.route('/uploadfiles', methods=['POST'])
+def upload_files():
+	token = request.form['token']
+	if list_token_id.has_key(token):
+		file_image = request.files['file_image']
+		print file_image.filename
+		if file_image and allowed_file(file_image.filename):
+			filename_image = secure_filename(file_image.filename)
+			file_image.save(os.path.join(UPLOAD_FOLDER, filename_image))
+			result = database_helper.upload_file(list_token_id.get(token),filename_image)
+			if result==True:
+				return return_json(200,True,' file upload')
+			else:
+				return return_json(401,False,'file exist already')	
+		else:
+			return return_json(401,False,'file not allow')
+	else:
+		return return_json(403,False,'user not connected')
 	
 
+"""
+	Definition:	send image to the cliente
+    Keyword arguments: token
+	Return: message to know if it's a success or a fail
+"""
+@app.route('/downloadimage/<token>')
+def download_image(token):
+	if token != None and list_token_id.has_key(token):
+		filename=database_helper.get_name_image(list_token_id.get(token))
+		if filename!='' and filename!=None:
+			result=send_from_directory(UPLOAD_FOLDER,filename, as_attachment=True)
+			#TODO check if img exist
+			return result
+		else:
+			return bytearray([])
+	else:
+		return bytearray([])
+
+
+"""
+	Definition:	send image to the cliente
+    Keyword arguments: token
+	Return: message to know if it's a success or a fail
+"""
+@app.route('/downloadimagebyemail/<token>/<email>')
+def download_image_by_email(token,email):
+	if token != None and list_token_id.has_key(token) and email != None:
+		id_user=database_helper.get_id_by_email(email)
+		if id_user=='wrong email':
+			return bytearray([])			
+		filename=database_helper.get_name_image(id_user)
+		if filename!='' and filename!=None:
+			result=send_from_directory(UPLOAD_FOLDER,filename, as_attachment=True)
+			#TODO check if img exist
+			return result
+		else:
+			return bytearray([])
+	else:
+		return bytearray([])
+    
+
 ######################################################
+#TODO comment
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 """
     Definition: send a message to the client by websocket with the mumber of messages
     Keyword arguments: -

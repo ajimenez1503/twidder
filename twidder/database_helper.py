@@ -220,7 +220,6 @@ def get_number_messages_by_token(id_user):
 """
 def get_number_likes_by_token(id_user):
 	db=get_db()
-	#get email from id_user
 	result=db.execute('select nbLike from profile where id=?',(id_user,))
 	user=result.fetchone()
 	nbLike= user[0]
@@ -245,4 +244,23 @@ def get_id_by_email(email):
 		return 'wrong email'
 	else:
 		return user
+
+def upload_file(id_user,filename_image):
+	db=get_db()
+	db.execute('update profile set image=? where  id=?',(filename_image,id_user))
+	if db.total_changes<=0:
+		db.commit()
+		return False
+	else:
+		db.commit()
+		return True
+def get_name_image(id_user):
+	db=get_db()
+	result=db.execute('select image from profile where id=?',(id_user,))
+	user=result.fetchone()
+	image= user[0]
+	if image is None:
+		return ""
+	else:
+		return image
 

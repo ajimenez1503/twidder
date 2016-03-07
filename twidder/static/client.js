@@ -30,7 +30,7 @@ window.onload = function(){
 */
 reloadPage = function(){
     displayView();
-    displayData();
+    displayData();	
 	open_websocket();
 	
 };
@@ -60,6 +60,7 @@ displayData = function(){
 		dataProfile();
 		getMessage();
 		getNumberMessageAndLikes();
+		showImageUser();
 	}	
 };
 
@@ -219,10 +220,44 @@ function dataProfile(email){
 					document.getElementById("profileGender"+view).innerHTML=output.data.gender;
 					document.getElementById("profileCity"+view).innerHTML=output.data.city;
 					document.getElementById("profileCountry"+view).innerHTML=output.data.country;
-					document.getElementById("profileEmail"+view).innerHTML=output.data.email;
+					document.getElementById("profileEmail"+view).innerHTML=output.data.email;					
 				}else{
 					showErrorMessagesPage("Profile","showdata",output.message,output.success);
 				}  
+			}
+		}			
+    }else{
+        showErrorMessagesPage("Profile","showdata","error email",false);
+    }
+}
+
+function showImageUser(email){
+    var view="";
+    var output;
+	var url;
+	var xmlHttp =new XMLHttpRequest();
+    if(email==null){
+		url="http://127.0.0.1:5000/downloadimage/"+localStorage.getItem("token"); 
+    }
+    else if (typeof(email) === 'string'){
+        view="Browse";
+		url="http://127.0.0.1:5000/downloadimagebyemail/"+localStorage.getItem("token")+"/"+email; 
+    }
+    if(email!==null || typeof(email) === 'string'){
+		xmlHttp.open("GET", url, true );
+		xmlHttp.responseType = 'arraybuffer';
+		xmlHttp.send();	
+		xmlHttp.onreadystatechange = function() { 
+			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+				if(xmlHttp.response.byteLength==0){
+					showErrorMessagesPage("Profile","show image","user without img",false);
+				}
+				else{
+					document.getElementById("profileImg"+view).style.display="block";
+					var blb = new Blob([xmlHttp.response], {type: 'image/png'});
+					var url = (window.URL || window.webkitURL).createObjectURL(blb);
+		            document.getElementById("profileImg"+view).src = url;
+				}
 			}
 		}			
     }else{
@@ -322,6 +357,7 @@ function searchProfile(){
 						dataProfile(email);
 					   	getMessage(email);
 						restar_drag_drop();
+						showImageUser(email);
 					}else{
 						showErrorMessagesPage("Profile","search profile",output.message,output.success);
 						//show div of data and message
@@ -438,6 +474,102 @@ function changeTab(tab){
     }
  
 }
+
+////////////////////////////////////////////////////////////////
+/*
+*UPLOAD FILES
+*/
+////////////////////////////////////////////////////////////////
+
+
+function validate_file(fileName,fileSize){
+	var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+    if( ext=="gif" || ext=="mp4" || ext=="ogg"  || ext=="jpg" || ext=="jpeg" || ext=="png")  {
+		if(fileSize>0 && fileSize<1000000000){//The file size can not exceed 1GB.
+			 return true;
+		}else{
+			return false;
+		}
+    }
+    else{
+        return false;
+    }
+
+}
+
+function upload(){
+	if(localStorage.getItem("token") != null){
+		var file_image = document.getElementById("file_image");
+		//var file_video = document.getElementById("file_video");
+		//var file_audio = document.getElementById("file_audio");
+		var txt = "";
+		if (file_image.value!="" /*&& file_video.value!="" && file_audio.value!="" */) {
+			var file = file_image.files[0];
+				if ('name' in file && 'size' in file) {
+					txt += "name: " + file.name + "<br>";
+				    txt += "size: " + file.size + " bytes <br>";
+					if(validate_file(file.name,file.size)) {
+						var formData = new FormData()
+						formData.append("token", localStorage.getItem("token") );	
+						formData.append("file_image", file);
+						var url="http://127.0.0.1:5000/uploadfiles";
+						var xmlHttp =new XMLHttpRequest(); 
+						xmlHttp.onreadystatechange = function() { 
+							if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+								var output= JSON.parse(xmlHttp.responseText);        
+								showErrorMessagesPage("Profile","upload file",output.message,output.success);       
+							}
+						}
+						xmlHttp.open("POST", url, true );
+						xmlHttp.send(formData);
+					}else{
+						showErrorMessagesPage("Profile","Upload_file","error validation file",false);
+					}	
+				}
+			/*file = file_image.video.files[0];
+				if ('name' in file) {
+				    txt += "name: " + file.name + "<br>";
+				}
+				if ('size' in file) {
+				    txt += "size: " + file.size + " bytes <br>";
+				}
+			file = file_image.audio.files[0];
+				if ('name' in file) {
+				    txt += "name: " + file.name + "<br>";
+				}
+				if ('size' in file) {
+				    txt += "size: " + file.size + " bytes <br>";
+				}*/
+		}else {
+			showErrorMessagesPage("Profile","Upload_file","Select 3 files: image, video ,audio.",false);
+		    //txt += "Select 3 files: image, video ,audio.";
+		}
+		document.getElementById("demo").innerHTML = txt;
+	}else {
+			showErrorMessagesPage("Profile","Upload_file","user not connect",false);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  
 
 ////////////////////////////////////////////////////////////////
