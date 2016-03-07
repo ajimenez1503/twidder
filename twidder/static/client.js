@@ -20,7 +20,10 @@ var connection;
 window.onload = function(){
     displayView();
     displayData();
+	open_websocket();
 };
+
+
 
 /**
 * Display the specific view without reload the page
@@ -77,7 +80,6 @@ function login(){
 				var output= JSON.parse(xmlHttp.responseText);        
 				if( output.success){
 					localStorage.setItem("token", output.data);
-				    //location.reload();
 					reloadPage();
 				}else{
 					showErrorMessagesPage("Welcome","login",output.message,output.success);

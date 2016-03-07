@@ -15,11 +15,17 @@ function showErrorMessagesPage(page,element,message,success){
         (page=="Welcome" || page=="Profile")){
         document.getElementById("showErrorMessage"+page+"Page").style.display="block";
         if(success){
-            document.getElementById("showErrorMessage"+page+"Page").style.color="black";
+            document.getElementById("showErrorMessage"+page+"Page").className ="alert alert-success";
         }
         else{
-            document.getElementById("showErrorMessage"+page+"Page").style.color="red";
+            document.getElementById("showErrorMessage"+page+"Page").className="alert alert-danger";
         }
+
+		//if we are at profile and change password, delete margin_top
+		//specific case
+		if(page=="Profile" && element=="changePassword"){
+			document.getElementById("showErrorMessage"+page+"Page").style.marginTop="0px";
+		}
 
         document.getElementById("errorMessage"+page+"Page").innerHTML=element+" : "+message;
         return true;

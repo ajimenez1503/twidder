@@ -15,11 +15,17 @@ function showErrorMessagesPage(page,element,message,success){
         (page=="Welcome" || page=="Profile")){
         document.getElementById("showErrorMessage"+page+"Page").style.display="block";
         if(success){
-            document.getElementById("showErrorMessage"+page+"Page").style.color="black";
+            document.getElementById("showErrorMessage"+page+"Page").className ="alert alert-success";
         }
         else{
-            document.getElementById("showErrorMessage"+page+"Page").style.color="red";
+            document.getElementById("showErrorMessage"+page+"Page").className="alert alert-danger";
         }
+
+		//if we are at profile and change password, delete margin_top
+		//specific case
+		if(page=="Profile" && element=="changePassword"){
+			document.getElementById("showErrorMessage"+page+"Page").style.margin-top="0px";
+		}
 
         document.getElementById("errorMessage"+page+"Page").innerHTML=element+" : "+message;
         return true;
@@ -99,3 +105,34 @@ function sendMessage(message,email,toOther){
 		var params = "email="+email+"&message="+message+"&token="+localStorage.getItem("token");
 		xmlHttp.send(params);		
 }
+
+
+////////////////////////////////////////////////////////////////
+/**
+*Implemebtation of drag and drop)
+*/
+////////////////////////////////////////////////////////////////
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+    ev.preventDefault();
+	console.log("I left it");
+    var data = ev.dataTransfer.getData("text");
+    ev.target.appendChild(document.getElementById(data));
+	incrementLike();
+	drag1.draggable = "false";
+}
+//restar the position of the drag
+function restar_drag_drop(){
+	var drag1 = document.getElementById('drag1');
+	drag1.draggable = "true";
+	document.getElementById('Display_thumb').appendChild(drag1);
+}
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
