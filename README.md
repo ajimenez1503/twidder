@@ -1,8 +1,11 @@
 # Twidder
-Simple social network where the user can:
+minimal social-networking web application called Twidder, where the user can:
   * Show the data profile and media 
   * Write and read messages
   * Change password
+  * Search other user 
+  * CLick like in other user
+  * Check how many user on the system
 
 
 ## Requirement:
@@ -21,9 +24,20 @@ password, and message wall by providing his/her email address.
   * The user shall be able to refresh another user’s message wall to see the newly posted messages,
 without refreshing the rest of the content.
   * The user shall be able to change his/her password while being signed­in.
+  * All the server functions specified in the lab instructions shall work exactly as specified.
+  * There can only be one valid session at a time. It means once the user is logged in, the other
+possible session shall automatically be expired. In case of the application being opened on that
+expired session, in some other browser or environment, the welcome view shall be
+automatically displayed.
 
 
 ### Non Functional
+  * The server shall use an SQLite database to store all user data.
+  * The server shall use appropriate HTTP methods for all routes.
+  * All the server­side methods will return the result in JSON.
+  * The server and client shall communicate asynchronously.
+  * HTTP and WebSocket requests are used for implementing one way and two way communication between the client and server
+  * JSON shall be used as data exchange format
   * Once the application is opened for the first time, it will not require to refresh itself during its
 lifetime. Such applications are called Single Page Applications or SPAs. For more information
 please check out section 4: Application Structure.
