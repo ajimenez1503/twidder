@@ -1,5 +1,5 @@
 # Twidder
-minimal social-networking web application called Twidder, where the user can:
+Minimal social-networking web application called Twidder, where the user can:
   * Show the data profile and media 
   * Write and read messages
   * Change password
