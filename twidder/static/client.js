@@ -61,6 +61,7 @@ displayData = function(){
 		getMessage();
 		getNumberMessageAndLikes();
 		showImageUser();
+		showVideoUser();
 	}	
 };
 
@@ -231,39 +232,6 @@ function dataProfile(email){
     }
 }
 
-function showImageUser(email){
-    var view="";
-    var output;
-	var url;
-	var xmlHttp =new XMLHttpRequest();
-    if(email==null){
-		url="http://127.0.0.1:5000/downloadimage/"+localStorage.getItem("token"); 
-    }
-    else if (typeof(email) === 'string'){
-        view="Browse";
-		url="http://127.0.0.1:5000/downloadimagebyemail/"+localStorage.getItem("token")+"/"+email; 
-    }
-    if(email!==null || typeof(email) === 'string'){
-		xmlHttp.open("GET", url, true );
-		xmlHttp.responseType = 'arraybuffer';
-		xmlHttp.send();	
-		xmlHttp.onreadystatechange = function() { 
-			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
-				if(xmlHttp.response.byteLength==0){
-					showErrorMessagesPage("Profile","show image","user without img",false);
-				}
-				else{
-					document.getElementById("profileImg"+view).style.display="block";
-					var blb = new Blob([xmlHttp.response], {type: 'image/png'});
-					var url = (window.URL || window.webkitURL).createObjectURL(blb);
-		            document.getElementById("profileImg"+view).src = url;
-				}
-			}
-		}			
-    }else{
-        showErrorMessagesPage("Profile","showdata","error email",false);
-    }
-}
 
 /**
 * send message to myself
@@ -358,6 +326,7 @@ function searchProfile(){
 					   	getMessage(email);
 						restar_drag_drop();
 						showImageUser(email);
+						showVideoUser(email);
 					}else{
 						showErrorMessagesPage("Profile","search profile",output.message,output.success);
 						//show div of data and message
@@ -477,14 +446,18 @@ function changeTab(tab){
 
 ////////////////////////////////////////////////////////////////
 /*
-*UPLOAD FILES
+*UPLOAD and download FILES
 */
 ////////////////////////////////////////////////////////////////
-
+/**
+* check if the file name is valid 
+* @param {string} the name and the size of the file
+*@return true or false according if it is valid.
+*/
 
 function validate_file(fileName,fileSize){
 	var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
-    if( ext=="gif" || ext=="mp4" || ext=="ogg"  || ext=="jpg" || ext=="jpeg" || ext=="png")  {
+    if( ext=="gif" || ext=="mp4" || ext=="ogg"  || ext=="jpg" || ext=="jpeg" || ext=="png" ||ext=="ogv"  || ext=="mov" || ext=="webm"){
 		if(fileSize>0 && fileSize<1000000000){//The file size can not exceed 1GB.
 			 return true;
 		}else{
@@ -497,80 +470,118 @@ function validate_file(fileName,fileSize){
 
 }
 
+/**
+* upload 2 files vide and image
+*/
 function upload(){
 	if(localStorage.getItem("token") != null){
 		var file_image = document.getElementById("file_image");
-		//var file_video = document.getElementById("file_video");
-		//var file_audio = document.getElementById("file_audio");
-		var txt = "";
-		if (file_image.value!="" /*&& file_video.value!="" && file_audio.value!="" */) {
-			var file = file_image.files[0];
-				if ('name' in file && 'size' in file) {
-					txt += "name: " + file.name + "<br>";
-				    txt += "size: " + file.size + " bytes <br>";
-					if(validate_file(file.name,file.size)) {
-						var formData = new FormData()
-						formData.append("token", localStorage.getItem("token") );	
-						formData.append("file_image", file);
-						var url="http://127.0.0.1:5000/uploadfiles";
-						var xmlHttp =new XMLHttpRequest(); 
-						xmlHttp.onreadystatechange = function() { 
-							if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
-								var output= JSON.parse(xmlHttp.responseText);        
-								showErrorMessagesPage("Profile","upload file",output.message,output.success);       
-							}
-						}
-						xmlHttp.open("POST", url, true );
-						xmlHttp.send(formData);
-					}else{
-						showErrorMessagesPage("Profile","Upload_file","error validation file",false);
-					}	
+		var file_video = document.getElementById("file_video");
+		if (file_image.value==""){showErrorMessagesPage("Profile","Upload_file","Select file image",false);return;}
+		if (file_video.value==""){showErrorMessagesPage("Profile","Upload_file","Select file video",false);return;} 
+		file_image = file_image.files[0];
+		file_video = file_video.files[0];
+		if ('name' in file_image && 'size' in file_image && 'name' in file_video && 'size' in file_video ) {
+			if(!validate_file(file_image.name,file_image.size)){showErrorMessagesPage("Profile","Upload_file","error validation file image",false);return;}
+			if(!validate_file(file_video.name,file_video.size)){showErrorMessagesPage("Profile","Upload_file","error validation file video",false);return;}
+			var formData = new FormData()
+			formData.append("token", localStorage.getItem("token") );	
+			formData.append("file_image", file_image);
+			formData.append("file_video", file_video);
+			var url="http://127.0.0.1:5000/uploadfiles";
+			var xmlHttp =new XMLHttpRequest(); 
+			xmlHttp.onreadystatechange = function() { 
+				if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+					var output= JSON.parse(xmlHttp.responseText);        
+					showErrorMessagesPage("Profile","upload file",output.message,output.success);       
 				}
-			/*file = file_image.video.files[0];
-				if ('name' in file) {
-				    txt += "name: " + file.name + "<br>";
-				}
-				if ('size' in file) {
-				    txt += "size: " + file.size + " bytes <br>";
-				}
-			file = file_image.audio.files[0];
-				if ('name' in file) {
-				    txt += "name: " + file.name + "<br>";
-				}
-				if ('size' in file) {
-				    txt += "size: " + file.size + " bytes <br>";
-				}*/
+			}
+			xmlHttp.open("POST", url, true );
+			xmlHttp.send(formData);	
 		}else {
-			showErrorMessagesPage("Profile","Upload_file","Select 3 files: image, video ,audio.",false);
-		    //txt += "Select 3 files: image, video ,audio.";
+			showErrorMessagesPage("Profile","Upload_file","Select 2 files: image, video.",false);
 		}
-		document.getElementById("demo").innerHTML = txt;
 	}else {
 			showErrorMessagesPage("Profile","Upload_file","user not connect",false);
 	}
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
+/**
+* Dispaly the image of the user 
+* @param {string} email of the user. If it is null the user is the actual
+*/
+function showImageUser(email){
+    var view="";
+    var output;
+	var url;
+	var xmlHttp =new XMLHttpRequest();
+    if(email==null){
+		url="http://127.0.0.1:5000/downloadimage/"+localStorage.getItem("token"); 
+    }
+    else if (typeof(email) === 'string'){
+        view="Browse";
+		url="http://127.0.0.1:5000/downloadimagebyemail/"+localStorage.getItem("token")+"/"+email; 
+    }
+    if(email==null || typeof(email) === 'string'){
+		xmlHttp.open("GET", url, true );
+		xmlHttp.responseType = 'arraybuffer';
+		xmlHttp.send();	
+		xmlHttp.onreadystatechange = function() { 
+			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+				if(xmlHttp.response.byteLength==0){
+					showErrorMessagesPage("Profile","show image","user without img",false);
+				}
+				else{
+					document.getElementById("profileImg"+view).style.display="block";
+					var blb = new Blob([xmlHttp.response], {type: 'image/png'});
+					var url = (window.URL || window.webkitURL).createObjectURL(blb);
+		            document.getElementById("profileImg"+view).src = url;
+				}
+			}
+		}			
+    }else{
+        showErrorMessagesPage("Profile","showdata","error email",false);
+    }
+}
+/**
+* Dispaly the video of the user 
+* @param {string} email of the user. If it is null the user is the actual
+*/
+function showVideoUser(email){
+    var view="";
+    var output;
+	var url;
+	var xmlHttp =new XMLHttpRequest();
+    if(email==null){
+		view="Home";
+		url="http://127.0.0.1:5000/downloadvideo/"+localStorage.getItem("token"); 
+    }
+    else if (typeof(email) === 'string'){
+        view="Browse";
+		url="http://127.0.0.1:5000/downloadvideobyemail/"+localStorage.getItem("token")+"/"+email; 
+    }
+    if(email==null || typeof(email) === 'string'){
+		xmlHttp.open("GET", url, true );
+		xmlHttp.responseType = 'arraybuffer';
+		xmlHttp.send();	
+		xmlHttp.onreadystatechange = function() { 
+			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+				if(xmlHttp.response.byteLength==0){
+					showErrorMessagesPage("Profile","show video","user without video",false);
+				}
+				else{
+					document.getElementById("video"+view).style.display="block";
+					var blob = new Blob([xmlHttp.response], {type: 'video/ogg'});
+					var url = (window.URL || window.webkitURL).createObjectURL(blob);
+		            document.getElementById("videoSource"+view).src = url;
+				}
+			}
+		}			
+    }else{
+        showErrorMessagesPage("Profile","showdata","error email",false);
+    }
+}
 
 ////////////////////////////////////////////////////////////////
 /*

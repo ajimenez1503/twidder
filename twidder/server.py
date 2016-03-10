@@ -24,7 +24,7 @@ bcrypt = Bcrypt(app)
 app.debug = True
 
 UPLOAD_FOLDER = '/home/antji996/Desktop/web/test/twidder/twidder/uploads'
-ALLOWED_EXTENSIONS = set(['gif', 'mp4', 'png', 'jpg', 'jpeg', 'ogg'])
+ALLOWED_EXTENSIONS = set(['gif', 'mp4', 'png', 'jpg', 'jpeg', 'ogg','ogv','mov','webm'])
 list_token_id={}
 list_conection={}
 min_size_password=4
@@ -286,11 +286,17 @@ def upload_files():
 	token = request.form['token']
 	if list_token_id.has_key(token):
 		file_image = request.files['file_image']
-		print file_image.filename
-		if file_image and allowed_file(file_image.filename):
+		file_video = request.files['file_video']
+		if file_image and allowed_file(file_image.filename) and file_video and allowed_file(file_video.filename) :
 			filename_image = secure_filename(file_image.filename)
-			file_image.save(os.path.join(UPLOAD_FOLDER, filename_image))
-			result = database_helper.upload_file(list_token_id.get(token),filename_image)
+			if not os.path.isfile(UPLOAD_FOLDER+'/'+filename_image): #check if file doesnt exist
+				file_image.save(os.path.join(UPLOAD_FOLDER, filename_image))
+
+			filename_video = secure_filename(file_video.filename)
+			if not os.path.isfile(UPLOAD_FOLDER+'/'+filename_video): #check if file doesnt exist
+				file_video.save(os.path.join(UPLOAD_FOLDER, filename_video))
+
+			result = database_helper.upload_file(list_token_id.get(token),filename_image,filename_video)
 			if result==True:
 				return return_json(200,True,' file upload')
 			else:
@@ -311,9 +317,11 @@ def download_image(token):
 	if token != None and list_token_id.has_key(token):
 		filename=database_helper.get_name_image(list_token_id.get(token))
 		if filename!='' and filename!=None:
-			result=send_from_directory(UPLOAD_FOLDER,filename, as_attachment=True)
-			#TODO check if img exist
-			return result
+			if os.path.isfile(UPLOAD_FOLDER+'/'+filename): #check if file exist
+				result=send_from_directory(UPLOAD_FOLDER,filename, as_attachment=True)
+				return result
+			else:
+				return bytearray([])
 		else:
 			return bytearray([])
 	else:
@@ -333,17 +341,68 @@ def download_image_by_email(token,email):
 			return bytearray([])			
 		filename=database_helper.get_name_image(id_user)
 		if filename!='' and filename!=None:
-			result=send_from_directory(UPLOAD_FOLDER,filename, as_attachment=True)
-			#TODO check if img exist
-			return result
+			if os.path.isfile(UPLOAD_FOLDER+'/'+filename): #check if file exist
+				result=send_from_directory(UPLOAD_FOLDER,filename, as_attachment=True)
+				return result
+			else:
+				return bytearray([])
 		else:
 			return bytearray([])
 	else:
 		return bytearray([])
     
 
+
+
+"""
+	Definition:	send video to the cliente
+    Keyword arguments: token
+	Return: message to know if it's a success or a fail
+"""
+@app.route('/downloadvideo/<token>')
+def download_video(token):
+	if token != None and list_token_id.has_key(token):
+		filename=database_helper.get_name_video(list_token_id.get(token))
+		if filename!='' and filename!=None:
+			if os.path.isfile(UPLOAD_FOLDER+'/'+filename): #check if file exist
+				result=send_from_directory(UPLOAD_FOLDER,filename, as_attachment=True)
+				return result
+			else:
+				return bytearray([])
+		else:
+			return bytearray([])
+	else:
+		return bytearray([])
+
+
+"""
+	Definition:	send video to the cliente
+    Keyword arguments: token
+	Return: message to know if it's a success or a fail
+"""
+@app.route('/downloadvideobyemail/<token>/<email>')
+def download_video_by_email(token,email):
+	if token != None and list_token_id.has_key(token) and email!= None:
+		id_user=database_helper.get_id_by_email(email)
+		if id_user=='wrong email':
+			return bytearray([])			
+		filename=database_helper.get_name_video(id_user)
+		if filename!='' and filename!=None:
+			if os.path.isfile(UPLOAD_FOLDER+'/'+filename): #check if file exist
+				result=send_from_directory(UPLOAD_FOLDER,filename, as_attachment=True)
+				return result
+			else:
+				return bytearray([])
+		else:
+			return bytearray([])
+	else:
+		return bytearray([])
 ######################################################
-#TODO comment
+"""
+	Definition:	check if the file name is valid 
+    Keyword arguments: name file 
+	Return: true or false
+"""
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS

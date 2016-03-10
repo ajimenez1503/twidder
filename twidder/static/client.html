@@ -137,6 +137,16 @@
 						  </div>
 						</div>
 					</div>
+					<div id="videoHome"  style="display:none;">
+						<div class="panel-group">
+							<div class="panel with panel-primary class">
+							  <div class="panel-heading">Media</div>
+							  <div class="panel-body">
+									<video id="videoSourceHome"  class="col-sm-11" controls></video>
+							  </div>
+							</div>
+						</div>
+					</div>
 				</div>
 				<div class="col-sm-6">
 					<div  class="panel with panel-primary class">
@@ -156,14 +166,12 @@
 				<div class="col-sm-5">
 						<div class="panel panel-login">
 							<div class="panel-body">
-								<p>Select 3 files: image, video ,audio.</p>
+								<p>Select 2 files: image and video.</p>
 								<form action="javascript:void(0);" method="post" enctype="multipart/form-data">
 									File image: <input id="file_image" name="file_image" type="file"><br>
 									File video: <input id="file_video" name="file_video" type="file"><br>
-									File audio: <input id="file_audio" name="file_audio" type="file"><br>
 									<input  onclick="upload()"  type="submit" value="Upload">
 								</form>
-								<p id="demo"></p>
 							</div>
 						</div>
 				</div>
@@ -225,6 +233,16 @@
 								</div>
 							</div>
 						</div>
+						<div id="videoBrowse"  style="display:none;" >
+						<div class="panel-group">
+							<div class="panel with panel-primary class">
+							  <div class="panel-heading">Media</div>
+							  <div class="panel-body">
+									<video id="videoSourceBrowse" class="col-sm-11" controls></video>
+							  </div>
+							</div>
+						</div>
+					</div>
 						<div class="panel-group">
 							<div class="panel with panel-primary class">
 								<div class="panel-heading">Global information</div>
@@ -256,7 +274,7 @@
 
 				</div>
 			</div>
-			<div id="showErrorMessageProfilePage" style="display:none;">
+		<div id="showErrorMessageProfilePage" style="display:none;">
       	<strong> <center> <p id="errorMessageProfilePage"> Error </p> </center> </strong>
       </div>  
     </script>

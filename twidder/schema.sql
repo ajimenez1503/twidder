@@ -11,7 +11,6 @@ create table profile (
 	country VARCHAR(100) not null,
 	nbLike integer not null DEFAULT 0,
 	image varchar(100) DEFAULT '',
-	audio varchar(100) DEFAULT '',
 	video varchar(100) DEFAULT ''
 );
 

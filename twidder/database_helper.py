@@ -245,15 +245,27 @@ def get_id_by_email(email):
 	else:
 		return user
 
-def upload_file(id_user,filename_image):
+
+"""
+	Definition:	update the database with the file of the user
+    Keyword arguments: id user, filename video and image
+	Return: true or false if it is update
+"""
+def upload_file(id_user,filename_image,filename_video):
 	db=get_db()
-	db.execute('update profile set image=? where  id=?',(filename_image,id_user))
+	db.execute('update profile set image=?,video=? where  id=?',(filename_image,filename_video,id_user))
 	if db.total_changes<=0:
 		db.commit()
 		return False
 	else:
 		db.commit()
 		return True
+
+"""
+	Definition:	get the name of the file image of the user by the id
+    Keyword arguments: id of the user
+	Return: name file or message error ""
+"""
 def get_name_image(id_user):
 	db=get_db()
 	result=db.execute('select image from profile where id=?',(id_user,))
@@ -263,4 +275,19 @@ def get_name_image(id_user):
 		return ""
 	else:
 		return image
+
+"""
+	Definition:	get the name of the file video of the user by the id
+    Keyword arguments: id of the user
+	Return: name file or message error ""
+"""
+def get_name_video(id_user):
+	db=get_db()
+	result=db.execute('select video from profile where id=?',(id_user,))
+	user=result.fetchone()
+	video= user[0]
+	if video is None:
+		return ""
+	else:
+		return video
 

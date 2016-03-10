@@ -5,6 +5,12 @@
 
 /*welcome.html*/
 
+#videoHome{
+	diplay:none;
+}
+#videoBrowse{
+	diplay:none;
+}
 
 #showErrorMessageProfilePage{
     margin-top: 520px;
