@@ -20,19 +20,27 @@ function showErrorMessagesPage(page,element,message,success){
         else{
             document.getElementById("showErrorMessage"+page+"Page").className="alert alert-danger";
         }
-		/*
-		//if we are at profile and change password, delete margin_top
-		//specific case
-		if(page=="Profile" && (element=="changePassword" || element=="Upload_file")){
-			document.getElementById("showErrorMessage"+page+"Page").style.marginTop="0px";
-		}
-		*/
         document.getElementById("errorMessage"+page+"Page").innerHTML=element+" : "+message;
+		fade(document.getElementById("showErrorMessage"+page+"Page"),300);
         return true;
     }else{
         return false;
     }
 
+}
+
+
+function fade(element, speed) {
+var op = 1,
+        timer = setInterval(function () {
+            if (op <= 0.1){
+                clearInterval(timer);
+                element.style.display = 'none';
+            }
+            element.style.opacity = op;
+            element.style.filter = 'alpha(opacity=' + op * 100 + ")";
+            op -= op * 0.1;
+        }, speed);
 }
 
 

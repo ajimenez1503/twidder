@@ -322,6 +322,8 @@ function searchProfile(){
 						document.getElementById("SendMessageBrowse").disabled = false;
 						//show div of data and message
 						document.getElementById("browseDataUser").style.display="block";
+						//disactive show error window
+						document.getElementById("showErrorMessageProfilePage").style.display="none";
 						dataProfile(email);
 					   	getMessage(email);
 						restar_drag_drop();
@@ -530,7 +532,7 @@ function showImageUser(email){
 		xmlHttp.onreadystatechange = function() { 
 			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
 				if(xmlHttp.response.byteLength==0){
-					showErrorMessagesPage("Profile","show image","user without img",false);
+					showErrorMessagesPage("Profile","show image","user without image",false);
 				}
 				else{
 					document.getElementById("profileImg"+view).style.display="block";
@@ -590,7 +592,7 @@ function showVideoUser(email){
 ////////////////////////////////////////////////////////////////
 function manageHistory(tabName){
         stateObj= { tab: tabName };
-        history.pushState(stateObj, tabName, "");
+        history.pushState(stateObj, tabName, tabName);
 }
  
  
@@ -717,6 +719,7 @@ function displayChart(){
     // Get the context of the canvas element we want to select
     var ctx = document.getElementById("statistics_chart").getContext("2d");
     var myBarChart = new Chart(ctx).Bar(data);
+
 };
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////

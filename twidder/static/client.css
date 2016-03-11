@@ -2,23 +2,15 @@
 * @author antonio Jimenez (antji996) cedric Lallemand (cedla736)
 * @version 0.1
 */
-
-/*welcome.html*/
-
-#videoHome{
-	diplay:none;
-}
-#videoBrowse{
-	diplay:none;
+.margin{
+	margin-top:3%;
 }
 
-#showErrorMessageProfilePage{
-    margin-top: 520px;
-}
 
-.img-responsive{
-margin: 0 auto;
-}
+
+/*.img-responsive{
+	margin: 0 auto;
+}*/
 #browseDataUser{
 	display: none;
 }
@@ -44,19 +36,19 @@ margin: 0 auto;
 
 /*profile*/
 #home{
-	width:750px;
+	
 	margin-left: auto;
     margin-right: auto;
 	display:block;
 }
 #browse{
-	width:750px;
+	
 	margin-left: auto;
     margin-right: auto;
 	display:none;
 }
 #account{
-	width:750px;
+	
 	margin-left: auto;
     margin-right: auto;
 	display:none;
