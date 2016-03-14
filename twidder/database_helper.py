@@ -4,10 +4,11 @@ import sqlite3
 #import hashlib
 from flask import g
 from contextlib import closing
+import os
 
 
 
-DATABASE = '/home/antji996/Desktop/web/test/twidder/twidder/database.db'
+DATABASE = os.getcwd() +'/twidder/twidder/database.db'
 
 def get_db():
     db = getattr(g, DATABASE, None)

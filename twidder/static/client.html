@@ -13,6 +13,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
     <title>twidder</title>
     <link href="client.css" type="text/css" rel="stylesheet">
+	<script src="src/page.js"></script>
     <script src="src/lib.js"></script>		
     <script src="client.js" ></script>        
     <script src="src/Chart.js"></script>
@@ -99,10 +100,10 @@
 			<nav class="navbar navbar-inverse">
 				<div class="container-fluid">
 					<ul class="nav navbar-nav">
-						<li onclick="changeTab('home')"> <a> <label>Home</label ></a> </li>
-						<li onclick="changeTab('account')"> <a> <label>Account</label> </a> </li>
-						<li onclick="changeTab('browse')"> <a> <label>Browse</label> </a> </li>
-						<li onclick="signout()"> <a> <label>Log out</label> </a> </li>
+						<li onclick="page('/home')"> <a> <label>Home</label ></a> </li>
+						<li onclick="page('/account')"> <a>  <label>Account</label> </a> </li>
+						<li onclick="page('/browse')"> <a> <label>Browse</label> </a> </li>
+						<li onclick="page('/connection')"> <a> <label>Log out</label> </a> </li>
 					</ul>
 				</div>
 			</nav>

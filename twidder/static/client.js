@@ -9,18 +9,31 @@ var number_likes=0;//global variable of number of likes of the user for the char
 var number_messages=0;//global variable of number of messages of the user for the chart
 var connection;
 
+
+
+
+
+function getURLbase(){
+
+}
+
+
+
 ////////////////////////////////////////////////////////////////
 /*
 *LOAD VIEWS
+
 */
 ////////////////////////////////////////////////////////////////
 /**
 * Display the specific view when the page is reload
 */
+
 window.onload = function(){
     displayView();
     displayData();
 	open_websocket();
+	page({hashbang: true});
 };
 
 
@@ -32,7 +45,6 @@ reloadPage = function(){
     displayView();
     displayData();	
 	open_websocket();
-	
 };
 
 
@@ -43,10 +55,8 @@ displayView = function(){
    // the code required to display a view
    if(localStorage.getItem("token") === null){
        document.getElementById("viewBase").innerHTML = document.getElementById("welcomeview").innerHTML;
-		manageHistory("connection");
    }else{
        document.getElementById("viewBase").innerHTML = document.getElementById("profileview").innerHTML;
-		manageHistory("home");
    }
 };
 
@@ -75,7 +85,7 @@ function login(){
 	var password=document.getElementById("loginPassword").value;
     if(password.length>=minSizePassword && validateEmail(email)){
 		var params = "password="+password+"&email="+email;
-		var url="http://127.0.0.1:5000/signin";
+		var url= window.location.protocol+"//"+window.location.host+"/signin";
 		var xmlHttp =new XMLHttpRequest(); 
 		xmlHttp.onreadystatechange = function() { 
 			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
@@ -83,6 +93,7 @@ function login(){
 				if( output.success){
 					localStorage.setItem("token", output.data);
 					reloadPage();
+					page("/home");
 				}else{
 					showErrorMessagesPage("Welcome","login",output.message,output.success);
 				}           
@@ -125,7 +136,7 @@ function signup(){
 
 
 
-		var url="http://127.0.0.1:5000/signup";
+		var url=window.location.protocol+"//"+window.location.host+"/signup";
 		var xmlHttp =new XMLHttpRequest(); 
 		xmlHttp.onreadystatechange = function() { 
 			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
@@ -146,7 +157,7 @@ function signup(){
 */
 function signout(){
     if(localStorage.getItem("token") != null){
-		var url="http://127.0.0.1:5000/signout/"+localStorage.getItem("token");
+		var url=window.location.protocol+"//"+window.location.host+"/signout/"+localStorage.getItem("token");
 		var xmlHttp =new XMLHttpRequest(); 
 		xmlHttp.onreadystatechange = function() { 
 				if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
@@ -172,7 +183,7 @@ function changePassword(){
 	var passwordNewRepeat=document.getElementById("formChangePasswordNewRepeat").value;
 	if(passwordNew==passwordNewRepeat){
 		if(passwordNew.length>=minSizePassword){
-			var url="http://127.0.0.1:5000/changepassword";
+			var url=window.location.protocol+"//"+window.location.host+"/changepassword";
 			var xmlHttp =new XMLHttpRequest(); 
 			xmlHttp.onreadystatechange = function() { 
 				if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
@@ -202,11 +213,11 @@ function dataProfile(email){
 	var url;
 	var xmlHttp =new XMLHttpRequest();
     if(email==null){
-		url="http://127.0.0.1:5000/getuserdatabytoken/"+localStorage.getItem("token"); 
+		url=window.location.protocol+"//"+window.location.host+"/getuserdatabytoken/"+localStorage.getItem("token"); 
     }
     else if (typeof(email) === 'string'){
         view="Browse";
-		url="http://127.0.0.1:5000/getuserdatabyemail/"+localStorage.getItem("token")+"/"+email; 
+		url=window.location.protocol+"//"+window.location.host+"/getuserdatabyemail/"+localStorage.getItem("token")+"/"+email; 
     }
     if(email!==null || typeof(email) === 'string'){
 		xmlHttp.open("GET", url, true );
@@ -241,7 +252,7 @@ function sendMessagetoMe(){
     if(message.length>0 && message.length<200){
 		//take the profile for take the own email
 		var xmlHttp =new XMLHttpRequest();
-		var url="http://127.0.0.1:5000/getuserdatabytoken/"+localStorage.getItem("token"); 
+		var url=window.location.protocol+"//"+window.location.host+"/getuserdatabytoken/"+localStorage.getItem("token"); 
 		xmlHttp.open("GET", url, true );
 		xmlHttp.send();	
 		xmlHttp.onreadystatechange = function() { 
@@ -281,11 +292,11 @@ function getMessage(email){
 	var xmlHttp =new XMLHttpRequest();
     if(email==null){
         father=document.getElementById("listMessage");
-		url="http://127.0.0.1:5000/getmessagesbytoken/"+localStorage.getItem("token"); 
+		url=window.location.protocol+"//"+window.location.host+"/getmessagesbytoken/"+localStorage.getItem("token"); 
     }
     else if (typeof(email) === 'string'){
         father=document.getElementById("listMessageBrowse");
-        url="http://127.0.0.1:5000/getmessagesbyemail/"+localStorage.getItem("token")+"/"+email;
+        url=window.location.protocol+"//"+window.location.host+"/getmessagesbyemail/"+localStorage.getItem("token")+"/"+email;
     }
     if((email==null || typeof(email) === 'string') && father!=null){
 		xmlHttp.open("GET", url, true );
@@ -312,7 +323,7 @@ function getMessage(email){
 function searchProfile(){
     var email=document.getElementById("searchProfile").value;
     if(email.length>0 && email.length<200 && validateEmail(email)){
-		var url="http://127.0.0.1:5000/getmessagesbyemail/"+localStorage.getItem("token")+"/"+email;
+		var url=window.location.protocol+"//"+window.location.host+"/getmessagesbyemail/"+localStorage.getItem("token")+"/"+email;
 			var xmlHttp =new XMLHttpRequest(); 
 			xmlHttp.onreadystatechange = function() { 
 				if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
@@ -354,7 +365,7 @@ function searchProfile(){
 function incrementLike(){
 		var email=document.getElementById("searchProfile").value;
 		if(email.length>0 && email.length<200 && validateEmail(email)){
-				var url="http://127.0.0.1:5000/incrementLike";
+				var url=window.location.protocol+"//"+window.location.host+"/incrementLike";
 				var xmlHttp =new XMLHttpRequest(); 
 				xmlHttp.onreadystatechange = function() { 
 					if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
@@ -383,7 +394,7 @@ function incrementLike(){
 function getNumberMessageAndLikes(){
 	//get number message and visit:
 		var output;
-		var url="http://127.0.0.1:5000/getnumbermessagesandLikesbytoken/"+localStorage.getItem("token"); 
+		var url=window.location.protocol+"//"+window.location.host+"/getnumbermessagesandLikesbytoken/"+localStorage.getItem("token"); 
 		var xmlHttp =new XMLHttpRequest();
 		xmlHttp.open("GET", url, true );
 		xmlHttp.send();	
@@ -411,39 +422,6 @@ function getNumberMessageAndLikes(){
 */
 function reloadMessage(){
     getMessage();
-}
-
-
-/**
-* On the view profle there are 3 tab: home account browse. The argument tab will be display.
-*The block for show erro will hidden
-*create the history
-* @param {string} the name of the tab
-*/
-function changeTab(tab){
-    var stateObj;
-    if(typeof(tab) === 'string') {
-        document.getElementById("showErrorMessageProfilePage").style.display="none";
-        if(tab=="home" && document.getElementById("home").style.display!="block"){
-            document.getElementById("home").style.display="block";
-            document.getElementById("browse").style.display="none";
-            document.getElementById("account").style.display="none";
-            dataProfile();
-            getMessage();
-            manageHistory("home");
-        }else if(tab=="browse" && document.getElementById("browse").style.display!="block"){
-            document.getElementById("home").style.display="none";
-            document.getElementById("browse").style.display="block";
-            document.getElementById("account").style.display="none";
-            manageHistory("browse");
-        }else if(tab=="account" && document.getElementById("account").style.display!="block"){
-            document.getElementById("home").style.display="none";
-            document.getElementById("browse").style.display="none";
-            document.getElementById("account").style.display="block";
-            manageHistory("account");
-        }
-    }
- 
 }
 
 ////////////////////////////////////////////////////////////////
@@ -490,7 +468,7 @@ function upload(){
 			formData.append("token", localStorage.getItem("token") );	
 			formData.append("file_image", file_image);
 			formData.append("file_video", file_video);
-			var url="http://127.0.0.1:5000/uploadfiles";
+			var url=window.location.protocol+"//"+window.location.host+"/uploadfiles";
 			var xmlHttp =new XMLHttpRequest(); 
 			xmlHttp.onreadystatechange = function() { 
 				if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
@@ -519,11 +497,11 @@ function showImageUser(email){
 	var url;
 	var xmlHttp =new XMLHttpRequest();
     if(email==null){
-		url="http://127.0.0.1:5000/downloadimage/"+localStorage.getItem("token"); 
+		url=window.location.protocol+"//"+window.location.host+"/downloadimage/"+localStorage.getItem("token"); 
     }
     else if (typeof(email) === 'string'){
         view="Browse";
-		url="http://127.0.0.1:5000/downloadimagebyemail/"+localStorage.getItem("token")+"/"+email; 
+		url=window.location.protocol+"//"+window.location.host+"/downloadimagebyemail/"+localStorage.getItem("token")+"/"+email; 
     }
     if(email==null || typeof(email) === 'string'){
 		xmlHttp.open("GET", url, true );
@@ -532,7 +510,7 @@ function showImageUser(email){
 		xmlHttp.onreadystatechange = function() { 
 			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
 				if(xmlHttp.response.byteLength==0){
-					showErrorMessagesPage("Profile","show image","user without image",false);
+					//showErrorMessagesPage("Profile","show image","user without image",false);
 				}
 				else{
 					document.getElementById("profileImg"+view).style.display="block";
@@ -557,11 +535,11 @@ function showVideoUser(email){
 	var xmlHttp =new XMLHttpRequest();
     if(email==null){
 		view="Home";
-		url="http://127.0.0.1:5000/downloadvideo/"+localStorage.getItem("token"); 
+		url=window.location.protocol+"//"+window.location.host+"/downloadvideo/"+localStorage.getItem("token"); 
     }
     else if (typeof(email) === 'string'){
         view="Browse";
-		url="http://127.0.0.1:5000/downloadvideobyemail/"+localStorage.getItem("token")+"/"+email; 
+		url=window.location.protocol+"//"+window.location.host + "/downloadvideobyemail/"+localStorage.getItem("token")+"/"+email; 
     }
     if(email==null || typeof(email) === 'string'){
 		xmlHttp.open("GET", url, true );
@@ -570,7 +548,7 @@ function showVideoUser(email){
 		xmlHttp.onreadystatechange = function() { 
 			if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
 				if(xmlHttp.response.byteLength==0){
-					showErrorMessagesPage("Profile","show video","user without video",false);
+					//showErrorMessagesPage("Profile","show video","user without video",false);
 				}
 				else{
 					document.getElementById("video"+view).style.display="block";
@@ -587,43 +565,100 @@ function showVideoUser(email){
 
 ////////////////////////////////////////////////////////////////
 /*
-*CONTROL HISTORY
+*Routing
 */
 ////////////////////////////////////////////////////////////////
-function manageHistory(tabName){
-        stateObj= { tab: tabName };
-        history.pushState(stateObj, tabName, tabName);
-}
- 
- 
-// Revert to a previously saved state
-window.addEventListener('popstate', function(event) {
+
+/**
+* Dispaly the Home view
+*/
+function displayHome(){
 	if(localStorage.getItem("token") != null){
-		if(event.state.tab=="home"&& document.getElementById("home").style.display!="block" ){
-		    document.getElementById("home").style.display="block";
-		    document.getElementById("browse").style.display="none";
-		    document.getElementById("account").style.display="none";
-		    dataProfile();
-		    getMessage();   
-		}else if(event.state.tab=="browse" && document.getElementById("browse").style.display!="block"){
-		    document.getElementById("home").style.display="none";
-		    document.getElementById("browse").style.display="block";
-		    document.getElementById("account").style.display="none";
-		}else if(event.state.tab=="account" && document.getElementById("account").style.display!="block"){
-		    document.getElementById("home").style.display="none";
-		    document.getElementById("browse").style.display="none";
-		    document.getElementById("account").style.display="block";
-		}else if(event.state.tab=="connection"){
-		    signout();
-		}
+		document.getElementById("home").style.display="block";
+		document.getElementById("browse").style.display="none";
+		document.getElementById("account").style.display="none";
+		dataProfile();
+		getMessage();
+		getNumberMessageAndLikes();
+		showImageUser();
+		showVideoUser();
+	} else {
+		page('/connection');
+	}  
+}
+
+/**
+* Dispaly the Browse view
+*/
+function displayBrowse(){
+	if(localStorage.getItem("token") != null){
+		document.getElementById("home").style.display="none";
+		document.getElementById("browse").style.display="block";
+		document.getElementById("account").style.display="none";
+	} else {
+		page('/connection');
+	}
+
+}
+
+/**
+* Dispaly the Account view
+*/
+function displayAccount(){
+	if(localStorage.getItem("token") != null){	
+		document.getElementById("home").style.display="none";
+		document.getElementById("browse").style.display="none";
+		document.getElementById("account").style.display="block";
+	} else {
+		page('/connection');
+	}
+}
+
+/**
+* When only the adress of the server is enter, redirection to the connection page
+*/
+page('/', function(){
+	page('/connection');
+});
+
+/**
+* This page disconnect the user when he is connected  
+*/
+page('/connection', function(){
+ 	if(localStorage.getItem("token") != null){
+		signout();
 	}
 });
 
+/**
+* Display the Home page
+*/
+page('/home', function(){
+ 	displayHome();
+});
 
+/**
+* Display the Browse page
+*/
+page('/browse', function(){
+ 	displayBrowse();
+});
 
+/**
+* Display the Account page
+*/
+page('/account', function(){
+ 	displayAccount();
+});
 
+/**
+* If the URL enter is wrong we redirect the user to the home page, and if the user is not connected to the connection page
+*/
+page('*', function(){
+ 	page('/home');
+});
 
-
+page({hashbang: true});
 
 ////////////////////////////////////////////////////////////////
 /*
@@ -694,6 +729,8 @@ function deleteTokenAndCloseWebsocket(){
 		connection=null;
 	}
 }
+
+
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 

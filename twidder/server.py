@@ -10,8 +10,6 @@ import database_helper
 import json
 import random
 import re
-
-
 from flask import send_from_directory
 import os
 from flask import redirect, url_for
@@ -23,7 +21,7 @@ app = Flask(__name__, static_url_path='')
 bcrypt = Bcrypt(app)
 app.debug = True
 
-UPLOAD_FOLDER = '/home/antji996/Desktop/web/test/twidder/twidder/uploads'
+UPLOAD_FOLDER = os.getcwd() + '/twidder/twidder/uploads'
 ALLOWED_EXTENSIONS = set(['gif', 'mp4', 'png', 'jpg', 'jpeg', 'ogg','ogv','mov','webm'])
 list_token_id={}
 list_conection={}
@@ -289,12 +287,15 @@ def upload_files():
 		file_video = request.files['file_video']
 		if file_image and allowed_file(file_image.filename) and file_video and allowed_file(file_video.filename) :
 			filename_image = secure_filename(file_image.filename)
-			if not os.path.isfile(UPLOAD_FOLDER+'/'+filename_image): #check if file doesnt exist
-				file_image.save(os.path.join(UPLOAD_FOLDER, filename_image))
+			if  os.path.isfile(UPLOAD_FOLDER+'/'+filename_image): #check if file doesnt exist 
+				filename_image=changeNameFile(filename_image)
+			file_image.save(os.path.join(UPLOAD_FOLDER, filename_image))
+
 
 			filename_video = secure_filename(file_video.filename)
-			if not os.path.isfile(UPLOAD_FOLDER+'/'+filename_video): #check if file doesnt exist
-				file_video.save(os.path.join(UPLOAD_FOLDER, filename_video))
+			if os.path.isfile(UPLOAD_FOLDER+'/'+filename_video): #check if file doesnt exist on disk
+				filename_video=changeNameFile(filename_video)
+			file_video.save(os.path.join(UPLOAD_FOLDER, filename_video))
 
 			result = database_helper.upload_file(list_token_id.get(token),filename_image,filename_video)
 			if result==True:
@@ -398,6 +399,20 @@ def download_video_by_email(token,email):
 	else:
 		return bytearray([])
 ######################################################
+"""
+	Definition:	change name of the file given in parameter
+    Keyword arguments: name original file
+	Return: new name file
+"""
+def changeNameFile(namefile):
+	base, extension = os.path.splitext(namefile)
+	counter = 1
+	namefile=base + str(counter) + extension
+	while os.path.isfile(UPLOAD_FOLDER+'/'+namefile):
+		counter = 1+counter
+		namefile=base + str(counter) + extension
+	return namefile
+
 """
 	Definition:	check if the file name is valid 
     Keyword arguments: name file 
